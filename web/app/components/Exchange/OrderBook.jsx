@@ -66,9 +66,9 @@ class OrderBook extends React.Component {
                 askIndex++;
                 return (
                      <tr key={order.id}>
-                        <td className={tdClass}>{price.toFixed(3)}</td>
                         <td >{(price * buy.amount / quotePrecision).toFixed(3)}</td>
                         <td >{(buy.amount / quotePrecision).toFixed(3)}</td>
+                        <td className={tdClass}>{price.toFixed(3)}</td>
 
                         {/*TODO: add expiration data <td>{order.expiration}</td> */}
                     </tr>
@@ -77,25 +77,28 @@ class OrderBook extends React.Component {
         }
 
         return (
-                <div className="clearfix grid-content" style={{height: "20vh"}}>
-                    <table className="table order-table float-left">
+                <div className="grid-block" style={{height: "20vh"}}>
+                <div className="grid-block small-6">
+                    <table className="table order-table ">
                         <thead>
                         <tr>
-                            <th style={{textAlign: "left"}}>Value</th>
-                            <th style={{textAlign: "left"}}>Amount</th>
-                            <th style={{textAlign: "left"}}>Bid</th>
+                            <th>Value</th>
+                            <th>Amount</th>
+                            <th>Bid</th>
                         </tr>
                         </thead>
                         <tbody>
                                 {bids}
                         </tbody>
                     </table>
-                    <table className="table order-table float-left">
+                </div>
+                <div className="grid-block small-6">
+                    <table className="table order-table">
                         <thead>
                         <tr>
-                            <th>Ask</th>
-                            <th>Amount</th>
                             <th>Value</th>
+                            <th>Amount</th>
+                            <th>Ask</th>
 
                             
                         </tr>
@@ -104,6 +107,7 @@ class OrderBook extends React.Component {
                                 {asks}
                         </tbody>
                     </table>
+                </div>
                 </div>
         );
     }
