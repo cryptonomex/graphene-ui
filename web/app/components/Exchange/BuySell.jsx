@@ -18,27 +18,19 @@ class BuySell extends React.Component {
         let divClass = classNames("grid-content", `${type}-form`);
 
         return (
-            <div className={divClass} style={{marginRight: "3px"}}>
+            <div className={divClass} style={{marginRight: "3px" }} >
                 <form className="order-form" onSubmit={onSubmit}>
                     <label>
-                        <span className="inline-label">
-                         <span className="form-label" style={{width: "80px"}}>Quantity:</span>
+                        Quantity ({quoteSymbol}):
                         <input type="text" id="buyAmount" value={amount} onChange={amountChange}/>
-                        <span className="form-label" style={{width: "140px" , textAlign:"right"}}>{quoteSymbol}</span>
-
-                        </span>
                     </label>
                     <label>
-                        <span className="inline-label">
-                         <span className="form-label" style={{width: "80px"}}>Price:</span>
+                        Price: ({baseSymbol} per {quoteSymbol}):
                         <input type="text" id="buyPrice" value={price} onChange={priceChange}/>
-                        <span className="form-label" style={{width: "140px" , textAlign:"right"}}>{baseSymbol}&nbsp;per&nbsp;{quoteSymbol}</span>                      
-                        </span>
                     </label>
-                    <label>
-                    <p className="float-left">Total ({baseSymbol}): { total.toFixed(3) }</p>
-                    <input class={type} type="submit" className="button float-right" value={buttonText}/>
-                    </label>
+
+                    <p>Total ({baseSymbol}): { total.toFixed(3) }</p>
+                    <input class={type} type="submit" className="button" value={buttonText}/>
                 </form>
             </div>);
     }
