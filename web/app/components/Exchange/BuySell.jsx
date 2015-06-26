@@ -18,7 +18,7 @@ class BuySell extends React.Component {
         let divClass = classNames("grid-content", `${type}-form`);
 
         return (
-            <div className={divClass}>
+            <div className={divClass} style={{marginRight: "3px" }} >
                 <form className="order-form" onSubmit={onSubmit}>
                     <label>
                         Quantity ({quoteSymbol}):

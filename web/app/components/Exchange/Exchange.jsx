@@ -128,14 +128,14 @@ class Exchange extends React.Component {
         return (
 
             <div className="grid-block  vertical">
-                <div className="grid-block ">
+                <div className="grid-block shrink">
                     <p>{baseSymbol} / {quoteSymbol} Put all kinds of info related to the market here (current price, spread, etc)</p>
                 </div>
-                <div className="grid-block page-layout">
+                <div className="grid-block page-layout" style={{border: "0px solid brown" ,  overflowY: "auto"}}>
 
 
                     {/* Left Column */}
-                    <div className="grid-block left-column small-3 medium-2" style={{border: "1px solid green" , overflowY: "auto"}}>
+                    <div className="grid-block left-column-2 small-3 medium-2" style={{border: "0px solid green" , overflowY: "auto"}}>
                       
 
 
@@ -153,7 +153,7 @@ class Exchange extends React.Component {
                     </div>
 
                     {/* Center Column */}
-                    <div className="block grid-block main-content vertical small-9 medium-10 large-8" style={{border: "1px solid yellow" , }}>
+                    <div className="block grid-block vertical small-9 medium-10 large-8" style={{border: "0px solid yellow" ,  overflowY: "auto" , padding: "0"}}>
 
                                 {/* TODO: placeholder for price history chart */}
                                         <div className="grid-block" style={{display: "inline-block", flexGrow: "0" }} >
@@ -188,7 +188,7 @@ class Exchange extends React.Component {
                                         
                                         </div>
 
-                                    <div className="grid-block" style={{ flexGrow: "0" , }} >
+                                    <div className="grid-block" style={{ flexGrow: "0" , padding: "2rem" }} >
                                         <div className="grid-content small-6">
                                                 <BuySell 
                                                     type="buy"
@@ -202,21 +202,20 @@ class Exchange extends React.Component {
                                                 />
                                         </div>
                                         <div className="grid-content small-6">
-                                            <BuySell 
-                                                type="sell"
-                                                amount={sellAmount}
-                                                price={sellPrice}
-                                                quoteSymbol={quoteSymbol}
-                                                baseSymbol={baseSymbol}
-                                                amountChange={this._sellAmountChanged.bind(this)}
-                                                priceChange={this._sellPriceChanged.bind(this)}
-                                                onSubmit={this._createLimitOrder.bind(this, quote,  base, sellAmount, sellAmount * sellPrice)}
-                                            />
+                                                <BuySell 
+                                                    type="sell"
+                                                    amount={sellAmount}
+                                                    price={sellPrice}
+                                                    quoteSymbol={quoteSymbol}
+                                                    baseSymbol={baseSymbol}
+                                                    amountChange={this._sellAmountChanged.bind(this)}
+                                                    priceChange={this._sellPriceChanged.bind(this)}
+                                                    onSubmit={this._createLimitOrder.bind(this, base, quote, sellAmount * sellPrice, sellAmount)}
+                                                />
                                         </div>
                                     </div>
-                             
-                            <div className="grid-block">
-                                {/* Depth Chart */}
+                                <div className="grid-block" style={{ flexGrow: "0" , padding: "2rem" }} >
+                                        {/* Depth Chart */}
                                             <OrderBook
                                                 orders={limit_orders}
                                                 base={base}
@@ -224,11 +223,11 @@ class Exchange extends React.Component {
                                                 baseSymbol={baseSymbol}
                                                 quoteSymbol={quoteSymbol}
                                                 />
-                            </div>
+                                </div>
                         </div>
                    
 
-                    <div className="grid-block right-column  show-for-large large-2" style={{border: "1px solid purple" , overflowY: "auto"}}>
+                    <div className="grid-block right-column  show-for-large medium-2" style={{border: "0px solid purple" , overflowY: "auto"}}>
                         {/* Market History */}
                         <MarketHistory history={this.props.history} />
                     </div>
