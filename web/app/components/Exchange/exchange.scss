@@ -18,11 +18,21 @@ td.orderHistoryAsk {
     > tbody > tr > td {
         font-size: 0.75rem;
         border: none;
+      span.icon {
+        font-size: 4px;
+        border: 1px solid red;
+       
+      }
     }
 }
 
+
+
 .my-orders {
-  width: 100%
+  width: 100%;
+  a.icon {
+    display:none;
+  }
 }
 
 p.order-table-title {
