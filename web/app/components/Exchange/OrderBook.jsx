@@ -98,7 +98,7 @@ class OrderBook extends React.Component {
                         <tr>
                             <th>Value</th>
                             <th>Amount</th>
-                            <th>Ask</th>
+                            <th>Bid</th>
 
                             
                         </tr>

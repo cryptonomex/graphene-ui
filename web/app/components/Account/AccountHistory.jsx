@@ -28,8 +28,16 @@ class AccountHistory extends React.Component {
             );
         });
         return (
-            <div className="grid-content no-overflow">
-                <table style={{width: "100%"}} className="table text-center">
+            <div className="grid-content">
+                <table style={{width: "100%"}} className="table text-left">
+                    <thead>
+                        <tr>
+                            <th>Block</th>
+                            <th>Action</th>
+                            <th>Details</th> 
+                            <th>Amount</th>     
+                        </tr>
+                    </thead>
                     <tbody>
                     {history}
                     </tbody>
