@@ -77,9 +77,9 @@ class OrderBook extends React.Component {
         }
 
         return (
-                <div className="grid-block" style={{height: "20vh"}}>
-                <div className="grid-block small-6">
-                    <table className="table order-table ">
+                <div className="grid-block" style={{height: "20vh" , overflowY: "auto"}}>
+                <div className="grid-block small-6"  style={{marginRight: "3px"}}>
+                    <table className="table order-table">
                         <thead>
                         <tr>
                             <th>Value</th>
@@ -93,7 +93,7 @@ class OrderBook extends React.Component {
                     </table>
                 </div>
                 <div className="grid-block small-6">
-                    <table className="table order-table">
+                    <table className="table order-table" style={{marginRight: "3px"}}>
                         <thead>
                         <tr>
                             <th>Value</th>

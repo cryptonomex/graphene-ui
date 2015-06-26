@@ -21,7 +21,7 @@ $info-color: #A0D3E8;
 $success-color: #50D2C2;
 $warning-color: #FCAB53;
 
-$table-even-row-bg: #FCAB53;
+$table-even-row-bg: darken($primary-text-color, 20%);
 
 // general
 
@@ -220,6 +220,9 @@ h1, h2, h3, h4, h5, h6 {
   &.table > tbody > tr:hover > td, .table > tbody > tr:hover > th {
     background-color: lighten($bg-color, 4%);
   }
+/*  tr:nth-child(even) {
+    background-color: darken($bg-color, 4%)
+  }*/
 }
 
 // block-list

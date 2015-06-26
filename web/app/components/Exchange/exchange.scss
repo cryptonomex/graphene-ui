@@ -13,16 +13,13 @@ td.orderHistoryAsk {
 	}
     > thead > tr > th {
         font-size: 0.9rem;
+        padding: 0 2px;
     }
 
     > tbody > tr > td {
         font-size: 0.75rem;
         border: none;
-      span.icon {
-        font-size: 4px;
-        border: 1px solid red;
-       
-      }
+        padding: 0 2px;
     }
 }
 
@@ -30,14 +27,14 @@ td.orderHistoryAsk {
 
 .my-orders {
   width: 100%;
-  a.icon {
-    display:none;
+  .icon > svg, span.icon {
+    width: 0.95rem;
+    padding-left: 4px;
+    margin: -4px 0 0 0;
   }
 }
 
-p.order-table-title {
-	display: none;
-}
+
 
 
 .notification,
