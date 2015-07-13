@@ -1,47 +1,39 @@
-import alt from "../alt-instance";
 import iDB from "../idb-instance";
 import key from "../common/key_utils"
 import idb_helper from "../idb-helper"
 
 import Immutable from "immutable";
 
-import BaseStore from "./BaseStore"
 import PrivateKeyStore from "./PrivateKeyStore"
-
 import {WalletTcomb, PrivateKeyTcomb} from "./tcomb_structs";
-import WalletActions from "../actions/WalletActions"
 import PrivateKey from "../ecc/key_private"
+import ApplicationApi from "../rpc_api/ApplicationApi"
 
+var application_api = new ApplicationApi()
+var wallet_public_name = "default"
 var aes_private_map = {}
+var transaction
 
-class WalletStore extends BaseStore {
+class WalletDb {
     
     constructor() {
-        super();
         this.secret_server_token = "secret_server_token";
         this.wallets = Immutable.Map();
-        this.bindActions(WalletActions)
-        this._export(
-            "getWallet","getCurrentWallet", "getBrainKey",
-            "onLock", "isLocked", "validatePassword", 
-            "transaction", "saveKey", "incrementBrainKeySequence",
-            "onCreate", "loadDbData"
-        )
     }
     
-    getWallet(wallet_public_name) {
+    getWallet() {
         return this.wallets.get(wallet_public_name)
     }
     
-    getCurrentWallet() {
-        if( ! this.current_wallet) {
-            if(this.wallets.count())
-                this.current_wallet = this.wallets.first().public_name
-        }
-        return this.current_wallet
+    getCurrentWalletName() {
+        return wallet_public_name
     }
     
-    getBrainKey(wallet_public_name) {
+    setCurrentWalletName(public_name) {
+        wallet_public_name = public_name
+    }
+    
+    getBrainKey() {
         var wallet = this.wallets.get(wallet_public_name)
         if ( ! wallet)
             throw new Error("missing wallet " + wallet_public_name)
@@ -51,7 +43,7 @@ class WalletStore extends BaseStore {
             throw new Error("wallet locked " + wallet_public_name)
         
         if ( ! wallet.encrypted_brainkey)
-            throw new Error("wallet does not have a brainkey")
+            throw new Error("missing brainkey")
         
         var brainkey_plaintext = aes_private.decryptHexToText(
             wallet.encrypted_brainkey
@@ -67,19 +59,15 @@ class WalletStore extends BaseStore {
         return brainkey_plaintext
     }
     
-    onLock(wallet_public_name) {
+    onLock() {
         delete aes_private_map[wallet_public_name]
     }
     
-    isLocked(wallet_public_name) {
+    isLocked() {
         return aes_private_map[wallet_public_name] ? false : true
     }
     
-    validatePassword(
-        wallet_public_name,
-        password,
-        unlock = false
-    ) {
+    validatePassword( password, unlock = false ) {
         var wallet = this.wallets.get(wallet_public_name)
         if ( ! wallet)
             return false
@@ -91,104 +79,41 @@ class WalletStore extends BaseStore {
             )
             if(unlock) {
                 aes_private_map[wallet_public_name] = aes_private
-                this.current_wallet = wallet_public_name
             }
         } catch(e) {
             console.log('password error', e)
         }
     }
     
-    transaction(resolve, reject) {
-        let transaction = iDB.instance().db().transaction(
-            ["wallets", "private_keys"], "readwrite"
+    transaction_update() {
+        var transaction = iDB.instance().db().transaction(
+            ["wallets"], "readwrite"
         )
-        transaction.onerror = e => {
-            reject(e.target.error.message)
-        }
-        transaction.oncomplete = e => {
-            resolve()
-        }
+        transaction.onerror = error =>
+            console.log(error, new Error().stack)
+        
         return transaction
     }
     
-    saveKey(
-        password_aes_private,
-        wallet_public_name,
-        wallet_id,
-        private_key,
-        brainkey_pos,
-        transaction
-    ) {
-        if(password_aes_private == void 0)
-            password_aes_private = aes_private_map[
-                wallet_public_name
-            ]
-        
-        var private_cipherhex =
-            password_aes_private.encryptToHex(
-                private_key.toBuffer()
-            )
-        
-        var public_key = private_key.toPublicKey()
-        var private_key_object = {
-            wallet_id,
-            brainkey_pos,
-            encrypted_key: private_cipherhex,
-            pubkey: public_key.toBtsPublic()
-        }
-        return PrivateKeyStore.onAddKey(
-            private_key_object, transaction
+    transaction_update_keys() {
+        var transaction = iDB.instance().db().transaction(
+            ["wallets", "private_keys"], "readwrite"
         )
+        transaction.onerror = error =>
+            console.log(error, new Error().stack)
+        
+        return transaction
     }
     
-    incrementBrainKeySequence(wallet_public_name, transaction) {
-        return new Promise((resolve, reject) => {
-            var wallet = this.wallets.get(wallet_public_name)
-            if ( ! wallet) {
-                reject("missing wallet " + wallet_public_name)
-                return
-            }
-            // https://github.com/gcanti/tcomb/issues/110
-            //var new_wallet = WalletTcomb.update(wallet, {
-            //    brainkey_sequence: {'$set': wallet.brainkey_sequence + 1}
-            //})
-            var new_wallet = wallet
-            wallet.brainkey_sequence = wallet.brainkey_sequence + 1
-            var wallet_store = transaction.objectStore("wallets")
-            return idb_helper.promise(
-                wallet_store.put(new_wallet)
-            ).then( () => {
-                // Update RAM
-                this.wallets.set(
-                    new_wallet.public_name,
-                    new_wallet
-                )
-                resolve()
-            })
-        })
-    }
-    
-    onCreate(
-        wallet_public_name = "default", 
+    onCreateWallet(
         password_plaintext,
         brainkey_plaintext,
-        private_wifs  = [],
         unlock = false
     ) {
-        var self = this
         return new Promise( (resolve, reject) => {
             if(this.wallets.get(wallet_public_name)) {
                 reject("wallet exists")
                 return
-            }
-            let transaction = iDB.instance().db().transaction(
-                ["wallets", "private_keys"], "readwrite"
-            )
-            transaction.onerror = e => {
-                reject(e.target.error.message)
-            }
-            transaction.oncomplete = e => {
-                resolve()
             }
             var password = key.aes_checksum(
                 password_plaintext + this.secret_server_token
@@ -211,46 +136,113 @@ class WalletStore extends BaseStore {
                 brainkey_checksum,
                 brainkey_sequence: 0
             }
-            
-            return idb_helper.add(
-                transaction.objectStore("wallets"), wallet, () => {
-                    try {
-                        var promises = []
-                        for(let wif of private_wifs) {
-                            var private_key = PrivateKey.fromWif(wif)
-                            var promise = this.saveKey(
-                                password.aes_private,
-                                wallet.public_name,
-                                wallet.id,
-                                private_key,
-                                null, //brainkey_pos
-                                transaction
-                            )
-                            promises.push(promise)
-                        }
-                        
-                        return Promise.all(promises).then( ()=> {
-                            this.wallets = this.wallets.set(
-                                wallet.public_name,
-                                wallet//WalletTcomb(wallet)
-                            )
-                            if(unlock) {
-                                aes_private_map[wallet_public_name] =
-                                    password.aes_private
-                            
-                                this.current_wallet = wallet.public_name
-                            }
-                            resolve()
-                        }).catch( error => {
-                            reject(error)
-                            return Promise.reject(e)
-                        })
-                    }catch(e) {
-                        reject(e)
-                        return Promise.reject(e)
-                    }
-                }
+            WalletTcomb(wallet)
+            var transaction = this.transaction_update()
+            var add = idb_helper.add(
+                transaction.objectStore("wallets"),
+                wallet
             )
+            var end = idb_helper.on_transaction_end(transaction).then( () => {
+                this.wallets = this.wallets.set(
+                    wallet.public_name,
+                    wallet//WalletTcomb(wallet)
+                )
+                if(unlock) {
+                    aes_private_map[wallet_public_name] =
+                        password.aes_private
+                }
+            })
+            resolve( Promise.all([ add, end ]) )
+        })
+    }
+    
+    generateKeys() {
+        var wallet = this.wallets.get(wallet_public_name)
+        if( ! wallet)
+            throw new Error("missing wallet " + wallet_public_name)
+        
+        var brainkey = this.getBrainKey()
+        if( ! brainkey)
+            throw new Error("missing brainkey")
+        
+        var owner_privkey = key.get_owner_private(
+            brainkey, wallet.brainkey_sequence
+        )
+        var active_privkey = key.get_active_private(owner_privkey);
+
+        return [
+            {
+                private_key: owner_privkey,
+                sequence: wallet.brainkey_sequence + ""
+            },{
+                private_key: active_privkey,
+                sequence: wallet.brainkey_sequence + ".0"
+            }
+        ]
+    }
+    
+    saveKeys(private_keys, transaction) {
+        //private_keys = [{private_key, sequence}]
+        for(let private_key_record of private_keys) {
+            this.saveKey(
+                private_key_record.private_key,
+                private_key_record.sequence,
+                transaction
+            )
+        }
+    }
+    
+    saveKey(
+        private_key,
+        brainkey_pos,
+        transaction
+    ) {
+        var password_aes_private = aes_private_map[
+            wallet_public_name
+        ]
+        var private_cipherhex =
+            password_aes_private.encryptToHex(
+                private_key.toBuffer()
+            )
+        var wallet = this.getWallet()
+        var public_key = private_key.toPublicKey()
+        var private_key_object = {
+            wallet_id: wallet.id,
+            encrypted_key: private_cipherhex,
+            brainkey_pos: brainkey_pos,
+            pubkey: public_key.toBtsPublic()
+        }
+        PrivateKeyTcomb(private_key_object)
+        PrivateKeyStore.onAddKey(
+            private_key_object, transaction
+        )
+    }
+        
+    incrementBrainKeySequence(transaction) {
+        return new Promise((resolve, reject) => {
+            var wallet = this.wallets.get(wallet_public_name)
+            if ( ! wallet) {
+                reject("missing wallet " + wallet_public_name)
+                return
+            }
+            // https://github.com/gcanti/tcomb/issues/110
+            //var new_wallet = WalletTcomb.update(wallet, {
+            //    brainkey_sequence: {'$set': wallet.brainkey_sequence + 1}
+            //})
+            var new_wallet = wallet
+            wallet.brainkey_sequence = wallet.brainkey_sequence + 1
+            var wallet_store = transaction.objectStore("wallets")
+            wallet_store.put(new_wallet)
+            var promise = idb_helper.on_transaction_end(
+                transaction 
+            ).then( () => {
+                // Update RAM
+                this.wallets.set(
+                    new_wallet.public_name,
+                    new_wallet
+                )
+            })
+            resolve(promise)
         })
     }
     
@@ -328,10 +320,10 @@ class WalletStore extends BaseStore {
     
 }
 
-module.exports = alt.createStore(WalletStore, "WalletStore")
+module.exports = new WalletDb()
 
 function reject(error) {
-    console.error( "----- WalletStore reject error -----", error)
+    console.error( "----- WalletDb reject error -----", error)
     throw new Error(error)
 }   
 

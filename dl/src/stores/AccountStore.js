@@ -12,6 +12,7 @@ class AccountStore extends BaseStore {
         this.cachedAccounts = Immutable.Map();
         this.linkedAccounts = Immutable.Set();
         this.payeeAccounts = Immutable.Set();
+        this.searchAccounts = Immutable.Map();
         this.balances = Immutable.Map();
         this.accountHistories = Immutable.Map();
         this.account_name_to_id = {};
@@ -25,7 +26,8 @@ class AccountStore extends BaseStore {
             onUpgradeAccount: AccountActions.upgradeAccount,
             onGetAccounts: AccountActions.getAccounts,
             onLinkAccount: AccountActions.linkAccount,
-            onUnlinkAccount: AccountActions.unlinkAccount
+            onUnlinkAccount: AccountActions.unlinkAccount,
+            onAccountSearch: AccountActions.accountSearch
         });
         this._export("loadDbData", "tryToSetCurrentAccount");
     }
@@ -47,6 +49,16 @@ class AccountStore extends BaseStore {
         });
     }
 
+    onAccountSearch(accounts) {
+        this.searchAccounts = this.searchAccounts.clear();
+        accounts.forEach(account => {
+            this.searchAccounts = this.searchAccounts.set(
+                account[1],
+                account[0]
+            );
+        });
+    }
+
     onGetAllAccounts(accounts) {
         accounts.forEach(account => {
             this.account_id_to_name[account[1]] = account[0];
@@ -60,14 +72,13 @@ class AccountStore extends BaseStore {
                 result.account,
                 result.history
             );
-
+            let name = this.account_id_to_name[result.account];
             this.balances = this.balances.set(
-                result.account,
+                name,
                 result.balances
             );
         } else {
             let account = result[0][0];
-
             if (account.id) {
                 let balances = result[1].length > 0 ? result[1] : [{
                     amount: 0,
@@ -75,7 +86,7 @@ class AccountStore extends BaseStore {
                 }];
 
                 this.balances = this.balances.set(
-                    account.id,
+                    account.name,
                     balances
                 );
 
@@ -98,6 +109,12 @@ class AccountStore extends BaseStore {
 
     tryToSetCurrentAccount() {
         if(this.linkedAccounts.size > 0) this.setCurrentAccount(this.linkedAccounts.first());
+        else {
+            let nathan_account = this.cachedAccounts.first();
+            if(nathan_account.name === "nathan" && nathan_account.owner.key_auths[0][0] === "GPH6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV") {
+                this.setCurrentAccount("nathan");
+            }
+        }
     }
 
     setCurrentAccount(name) {
@@ -120,7 +137,7 @@ class AccountStore extends BaseStore {
     }
 
     onCreateAccount(name) {
-        iDB.add_to_store("linked_accounts", {name}).then( (name) => {
+        iDB.add_to_store("linked_accounts", {name}).then( () => {
             console.log("[AccountStore.js] ----- Added account to store: ----->", name);
             this.linkedAccounts = this.linkedAccounts.add(name);
             if(this.linkedAccounts.size === 1) this.setCurrentAccount(name);
@@ -141,6 +158,10 @@ class AccountStore extends BaseStore {
         iDB.remove_from_store("linked_accounts", name);
         this.linkedAccounts = this.linkedAccounts.remove(name);
         if(this.linkedAccounts.size === 0) this.setCurrentAccount(null);
+    }
+
+    onTransactUpdateAccount(account) {
+        console.log("[AccountStore.js:154] ----- onTransactUpdateAccount ----->", account);
     }
 
 }

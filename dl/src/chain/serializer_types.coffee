@@ -166,6 +166,18 @@ Types.bool =
         return no if debug.use_default and object is undefined
         if object then yes else no
 
+Types.void =
+    fromByteBuffer:(b)->
+        throw new Error "(void) undefined type"
+    appendByteBuffer:(b, object)->
+        throw new Error "(void) undefined type"
+    fromObject:(object)->
+        throw new Error "(void) undefined type"
+    toObject:(object, debug = {})->
+        if debug.use_default and object is undefined
+            return undefined
+        throw new Error "(void) undefined type"
+
 Types.array = (st_operation)->
     fromByteBuffer:(b)->
         size = b.readVarint32()
@@ -205,9 +217,10 @@ Types.set = (st_operation)->
     validate: (array)->
         dup_map = {}
         for o in array
-            if dup_map[o] isnt undefined
+            o_str = JSON.stringify(o)
+            if dup_map[o_str] isnt undefined
                 throw new Error "duplicate"
-            dup_map[o] = on
+            dup_map[o_str] = on
         array.sort()
     fromByteBuffer:(b)->
         size = b.readVarint32()
@@ -216,16 +229,19 @@ Types.set = (st_operation)->
         @validate (for i in [0...size] by 1
             st_operation.fromByteBuffer b)
     appendByteBuffer:(b, object)->
+        object = [] unless object
         b.writeVarint32 object.length
         for o in @validate object
             st_operation.appendByteBuffer b, o
         return
     fromObject:(object)->
+        object = [] unless object
         @validate (for o in object
             st_operation.fromObject o)
     toObject:(object, debug = {})->
         if debug.use_default and object is undefined
             return [ st_operation.toObject(object, debug) ]
+        object = [] unless object
         @validate (for o in object
             st_operation.toObject o, debug)
 

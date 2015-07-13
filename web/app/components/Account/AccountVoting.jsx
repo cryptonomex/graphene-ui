@@ -7,34 +7,19 @@ import AutocompleteInput from "../Forms/AutocompleteInput";
 import VotesTable from "./VotesTable";
 import VoteActions from "actions/VoteActions";
 import VoteStore from "stores/VoteStore";
+import BaseComponent from "../BaseComponent";
+import Tabs from "react-foundation-apps/src/tabs";
 
-class AccountVoting extends React.Component {
+class AccountVoting extends BaseComponent {
 
-    constructor() {
-        super();
-        this.initial_data = {
-            my_delegates: Immutable.List.of({name: "Alice", info: "Some delegate description", support: "12%"}, {name: "Bob", info: "Some another delegate description", support: "10%"}),
-            my_witnesses: Immutable.List.of({name: "Node 1", info: "Some witness description", support: "12%"}, {name: "Node 2", info: "Some another witness description", support: "10%"}),
-            my_budget_items: Immutable.List.of({name: "budget1", info: "Some budget item description", support: "12%"}, {name: "Node 2", info: "Some another budget description", support: "10%"}),
-            proxy_account: null
-        };
-        this.state = this.getDefaultState();
+    constructor(props) {
+        super(props);
+        super(props, VoteStore);
     }
 
-    getDefaultState() {
-        return {
-            my_delegates: this.initial_data.my_delegates,
-            my_witnesses: this.initial_data.my_witnesses,
-            my_budget_items: this.initial_data.my_budget_items,
-            proxy_account: this.initial_data.proxy_account
-        };
-    }
-
-    isStateChanged() {
-        return  this.state.my_delegates !== this.initial_data.my_delegates ||
-                this.state.my_witnesses !== this.initial_data.my_witnesses ||
-                this.state.my_budget_items !== this.initial_data.my_budget_items ||
-                this.state.proxy_account !== this.initial_data.proxy_account;
+    shouldComponentUpdate(nextProps, nextState) {
+        //return VoteStore.hasChanges(this.props.account_name);
+        return true;
     }
 
     switchProxy() {
@@ -44,94 +29,92 @@ class AccountVoting extends React.Component {
         this.setState({proxy_account});
     }
 
-    onAddRow(state_key, name) {
-        let data = {}; data[state_key] = this.state[state_key].push({name});
-        this.setState(data);
+    onAddRow(container_name, name) {
+        VoteActions.addItem(container_name, this.props.account_name, {name});
     }
 
-    onRemoveRow(state_key, name) {
-        let index = this.state[state_key].findIndex(i => i.name === name);
-        if (index >= 0) {
-            let data = {}; data[state_key] = this.state[state_key].delete(index);
-            this.setState(data);
-        }
+    onRemoveRow(container_name, name) {
+        VoteActions.removeItem(container_name, this.props.account_name, {name});
     }
 
     onProxyChanged(e) {
-        VoteActions.setProxyAccount(this.props.account_name, this.refs.proxy_account.value());
-        this.setState({proxy_account: this.refs.proxy_account.value()});
+        // TODO: get proxy_account's id before submitting it setProxyAccount
+        VoteActions.setProxyAccount(this.props.account_name, 0, this.refs.proxy_account.value());
     }
 
     onPublish() {
         console.log("[AccountVoting.jsx:49] ----- onPublish ----->");
+        let account_name = this.props.account_name;
+        if (VoteStore.hasChanges(account_name)) {
+            let account_json = VoteStore.getAccountJsonWithChanges(account_name);
+            VoteActions.publishChanges(account_name, account_json);
+        }
     }
 
-    onResetChanges(e) {
+    onCancelChanges(e) {
         e.preventDefault();
-        this.setState(this.getDefaultState());
+        VoteActions.cancelChanges(this.props.account_name);
+        this.refs.proxy_account.setValue(this.state.c_proxies[this.props.account_name]);
     }
 
     render() {
+        let account_name = this.props.account_name;
+        let my_delegates = this.state.c_delegates[account_name];
+        let my_witnesses = this.state.c_witnesses[account_name];
+        let my_budget_items = this.state.c_budget_items[account_name];
+        let my_proxy_account = this.state.c_proxies[account_name];
+        //console.log("[AccountVoting.jsx:83] ----- render ----->", my_proxy_account, my_delegates, my_witnesses, my_budget_items);
         let ad = this.props.all_delegates;
         let all_delegates = Object.keys(ad).map(k => [`["${ad[k]}","${k}"]`, k]);
         let all_witnesses = all_delegates;
         let all_budget_items = all_delegates;
-        let action_buttons_class = "button" + (this.isStateChanged() ? "" : " disabled");
+        let action_buttons_class = "button" + (VoteStore.hasChanges(account_name) ? "" : " disabled");
 
         return (
             <div className="grid-content">
                 <div className="content-block">
-                    <h3>
-                        <div className="switch float-right">
-                            <input type="checkbox" checked={this.state.proxy_account}/>
-                            <label onClick={this.switchProxy.bind(this)}></label>
-                        </div>
-                        Proxy Voting Account
-                    </h3>
-                    {this.state.proxy_account !== null ? (
-                        <div className="medium-4">
-                            <br/>
-                            <label>Account Name</label>
-                            <AutocompleteInput
-                                id="proxy_account" ref="proxy_account"
-                                options={all_delegates}
-                                onChange={this.onProxyChanged.bind(this)}/>
-                        </div>
-                        ) : null
-                    }
+                    <div className="medium-4">
+                        <label>Proxy Voting Account</label>
+                        <AutocompleteInput
+                            id="proxy_account" ref="proxy_account"
+                            options={all_delegates}
+                            onChange={this.onProxyChanged.bind(this)}
+                            initial_value={my_proxy_account}/>
+                    </div>
                 </div>
-                {this.state.proxy_account === null ?
-                    (<div>
+                {my_proxy_account === "" ?
+                    (
                     <div className="content-block">
-                        <h3>Delegates</h3>
-                        <VotesTable
-                            selectedEntities={this.state.my_delegates}
-                            allEntities={all_delegates}
-                            onAddRow={this.onAddRow.bind(this, "my_delegates")}
-                            onRemoveRow={this.onRemoveRow.bind(this, "my_delegates")} />
+                        <Tabs>
+                            <Tabs.Tab title="Delegates">
+                                <VotesTable
+                                    selectedEntities={my_delegates}
+                                    allEntities={all_delegates}
+                                    onAddRow={this.onAddRow.bind(this, "delegates")}
+                                    onRemoveRow={this.onRemoveRow.bind(this, "delegates")} />
+                            </Tabs.Tab>
+                            <Tabs.Tab title="Witnesses">
+                                <VotesTable
+                                    selectedEntities={my_witnesses}
+                                    allEntities={all_witnesses}
+                                    onAddRow={this.onAddRow.bind(this, "witnesses")}
+                                    onRemoveRow={this.onRemoveRow.bind(this, "witnesses")} />
+                            </Tabs.Tab>
+                            <Tabs.Tab title="Budget Items">
+                                <VotesTable
+                                    selectedEntities={my_budget_items}
+                                    allEntities={all_budget_items}
+                                    onAddRow={this.onAddRow.bind(this, "budget_items")}
+                                    onRemoveRow={this.onRemoveRow.bind(this, "budget_items")} />
+                            </Tabs.Tab>
+                          </Tabs>
                     </div>
-                    <div className="content-block">
-                        <h3>Witnesses</h3>
-                        <VotesTable
-                            selectedEntities={this.state.my_witnesses}
-                            allEntities={all_witnesses}
-                            onAddRow={this.onAddRow.bind(this, "my_witnesses")}
-                            onRemoveRow={this.onRemoveRow.bind(this, "my_witnesses")} />
-                    </div>
-                    <div className="content-block">
-                        <h3>Budget Items</h3>
-                        <VotesTable
-                            selectedEntities={this.state.my_budget_items}
-                            allEntities={all_budget_items}
-                            onAddRow={this.onAddRow.bind(this, "my_budget_items")}
-                            onRemoveRow={this.onRemoveRow.bind(this, "my_budget_items")} />
-                    </div>
-                    </div>) : null
+                    ) : null
                 }
                 <div className="content-block">
                     <div className="actions clearfix">
                         <button className={action_buttons_class} onClick={this.onPublish.bind(this)}>Publish Changes</button>
-                        <a href="#" className={action_buttons_class + " secondary"} onClick={this.onResetChanges.bind(this)}>Reset Changes</a>
+                        <a href="#" className={action_buttons_class + " secondary"} onClick={this.onCancelChanges.bind(this)}>Reset Changes</a>
                     </div>
                 </div>
             </div>

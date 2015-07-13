@@ -6,12 +6,15 @@ Aes = require '../ecc/aes'
 
 v = require './serializer_validation'
 chain_types = require './chain_types'
+chain_config = require './config'
 hash = require('../common/hash')
 type = require './serializer_operation_types'
 validation = require('../common/validation')
-lookup = new (require './lookup')()
+lookup = require './lookup'
 api = require('../rpc_api/ApiInstances').instance()
 helper = require('../chain/transaction_helper')
+
+fee = "2111100000"
 
 module.exports = _my = {}
 
@@ -22,7 +25,6 @@ _my.signed_transaction = ->
     relative_expiration: 0
     operations: []
     signatures: []
-    extra_signatures: []
     
     add_operation: (operation) ->
         v.required operation, "operation"
@@ -44,7 +46,7 @@ _my.signed_transaction = ->
             throw new Error "unknown operation: #{_type.operation_name}"
         unless operation.fee
             operation.fee =
-                amount: "100000"
+                amount: fee
                 asset_id: "1.3.0"
         operation_instance = _type.fromObject operation
         @operations.push [operation_id, operation_instance]
@@ -56,7 +58,14 @@ _my.signed_transaction = ->
     ###* Always returns a promise.  If broadcast is true it returns the result
     from the server, if not it returns the json transaction object.  ###
     finalize:(private_keys, broadcast = no)->
+        if broadcast and not @operations.length
+            return Promise.reject("no operations")
+        
         ((tr, private_keys, broadcast)->
+            if(tr.ref_block_prefix == 0)
+                tr.ref_block_prefix = 
+                    Math.round(Date.now()/1000) + (chain_config.expire_in_min * 60)
+            
             new Promise (resolve, reject)->
                 lookup.resolve().then ()->
                     for op in tr.operations
@@ -79,8 +88,8 @@ _my.signed_transaction = ->
                         return
                     
                     ((private_key, tr_buffer, tr_object)->
-                        api.network_api().exec("broadcast_transaction", [tr_object]).then (result)->
-                            resolve result
+                        api.network_api().exec("broadcast_transaction", [tr_object]).then ()->
+                            resolve tr_object
                             return
                         .catch (error)->
                             signer_public = private_key.toPublicKey()
@@ -109,10 +118,10 @@ _my.signed_transaction = ->
 class _my.transfer
     _template = ->
         fee : 
-            amount : "100000"
-            asset_id : 0# 1.3.0
-        from: null      # 1.2.0
-        to: null        # 1.2.0
+            amount : fee
+            asset_id : 0 # 1.3.0
+        from: null       # 1.2.0
+        to: null         # 1.2.0
         amount:
             amount: "0"
             asset_id: 0 # 1.3.0

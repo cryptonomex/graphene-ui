@@ -1,83 +1,126 @@
-import WalletStore from "../stores/WalletStore"
+import WalletDb from "../stores/WalletDb"
 import ApplicationApi from "../rpc_api/ApplicationApi"
 import PrivateKey from "../ecc/key_private"
-
-import key from "../common/key_utils"
-import v from "../common/validation"
-
-//console.log('... WalletStore', Object.keys(WalletStore))
+import Apis from "../rpc_api/ApiInstances"
+import ops from "../chain/transaction_operations"
+import chain_types from "../chain/chain_types"
+import lookup from "chain/lookup" 
 
 var alt = require("../alt-instance")
 var application_api = new ApplicationApi()
+var api = Apis.instance()
 
 class WalletActions {
 
     constructor() {
+        this.generateActions(
+            'brainKeyAccountCreated',
+            'brainKeyAccountCreateError'
+        )
     }
 
-    createBrainKeyAccount(_account_name, _wallet_public_name){
+    //re-factor WalletDb.onCreateWallet and this.createWallet 
+    
+    createBrainKeyAccount( account_name ) {
+        if( WalletDb.isLocked()) {
+            var error = "wallet locked"
+            this.actions.brainKeyAccountCreateError( error )
+            return Promise.reject( error )
+        }
+        var [owner_private, active_private] = WalletDb.generateKeys()
+        return application_api.create_account_with_brain_key(
+            owner_private.private_key.toPublicKey().toBtsPublic(),
+            active_private.private_key.toPublicKey().toBtsPublic(),
+            account_name,
+            15, //registrar_id,
+            0, //referrer_id,
+            100, //referrer_percent,
+            PrivateKey.fromSeed("nathan"), //signer_private_key,
+            true //broadcast
+        ).then(() => {
+            var transaction = WalletDb.transaction_update_keys()
+            WalletDb.saveKeys(
+                [ owner_private, active_private ],
+                transaction
+            )
+            WalletDb.incrementBrainKeySequence(transaction)
+            
+        }).then( ()=> {
+            //DEBUG console.log('... brainKeyAccountCreated')
+            this.actions.brainKeyAccountCreated()
+        }).catch(  error => {
+            //DEBUG console.log('WalletActions.createBrainKeyAccount',error)    
+            this.actions.brainKeyAccountCreateError(error)
+            throw error
+        })
+    }
+    
+    importBalance( account_name_or_id, wif_keys, broadcast ) {
         return new Promise((resolve, reject) => {
             
-            var account_name = _account_name
-            var wallet_public_name = _wallet_public_name
+            var db = api.db_api()
+            var address_privatekey_map = new Map()
+            var address_publickey_map = {}
             
-            if(WalletStore.isLocked(wallet_public_name)) {
-                reject("locked wallet " + wallet_public_name)
-                return
-            }
-            var wallet = WalletStore.getWallet(wallet_public_name)
-
-            var result = application_api.create_account_with_brain_key(
-                WalletStore.getBrainKey(wallet.public_name),
-                account_name,
-                15, //registrar_id,
-                0, //referrer_id,
-                100, //referrer_percent,
-                10, //expire_minutes,
-                PrivateKey.fromSeed("nathan"), //signer_private_key,
-                true, //broadcast
-                wallet.brainkey_sequence
-            )
-            
-            return result.trx_promise.then(() => {
-                var transaction = WalletStore.transaction(
-                    resolve,
-                    reject
-                )
-                var save_owner_promise = WalletStore.saveKey(
-                    null, //aes_private,
-                    wallet.public_name,
-                    wallet.id,
-                    result.owner_privkey,
-                    wallet.brainkey_sequence + "",
-                    transaction
-                )
-                var save_active_promise = WalletStore.saveKey(
-                    null, //aes_private,
-                    wallet.public_name,
-                    wallet.id,
-                    result.active_privkey,
-                    wallet.brainkey_sequence + ".0",
-                    transaction
-                )
-                var incr_promise =
-                    WalletStore.incrementBrainKeySequence(
-                        wallet.public_name,
-                        transaction
-                    )
-                return Promise.all([
-                    save_owner_promise,
-                    save_active_promise,
-                    incr_promise
-                ]).then( ()=> {
-                    this.dispatch()
-                    return
-                }).catch( error => {
-                    reject(error)
+            var account_lookup = lookup.account_id(account_name_or_id)
+            var p = lookup.resolve().then( ()=> {
+                var account = account_lookup.resolve
+                //DEBUG 
+                console.log('... account',account)
+                if( ! account)
+                    throw new Error("unknown account " + account_name_or_id)
+                
+                var address_params = []
+                for(let wif of wif_keys) {
+                    var private_key = PrivateKey.fromWif(wif)
+                    var public_key = private_key.toPublicKey()
+                    var address_str = public_key.toBtsAddy()
+                    address_privatekey_map[address_str] = private_key
+                    address_publickey_map[address_str] = public_key
+                    address_params.push( [address_str] )
+                    //DEBUG console.log('... address_str', address_str)
+                }
+                
+                return db.exec("get_balance_objects", address_params).then( result => {
+                    //DEBUG 
+                    console.log('... result',result)
+                    var balance_claims = []
+                    for(let b of result) {
+                        
+                        if(b.vesting_policy)
+                            continue //todo
+                        //var total_claimed = "0"
+                        //if( ! b.vesting_policy)
+                        //    total_claimed = b.balance
+                        ////'else' Zero total_claimed is understood to mean that your
+                        ////claiming the vesting balance on vesting terms.
+                        
+                        balance_claims.push({
+                            //fee: { amount: "100000", asset_id: 0},
+                            deposit_to_account: account.id,
+                            balance_to_claim: b.id, //"1.15.0"
+                            balance_owner_key: address_publickey_map[b.owner],
+                            total_claimed: {
+                                amount: total_claimed,
+                                asset_id: b.balance.asset_id
+                            }
+                        })
+                    }
+                    //DEBUG 
+                    console.log('... balance_claims',balance_claims)
+                    var tr = new ops.signed_transaction()
+                    for(let balance_claim of balance_claims) {
+                        tr.add_type_operation("balance_claim", balance_claim)
+                    }
+                    var signer_privates = Array.from(address_privatekey_map.values())
+                    //signer_privates.push(PrivateKey.fromSeed("nathan"))
+                    return tr.finalize( signer_privates, broadcast )
                 })
+                    
             })
+            resolve(p)
         })
     }
 }
 
-module.exports = alt.createActions(WalletActions);
+module.exports = alt.createActions(WalletActions)

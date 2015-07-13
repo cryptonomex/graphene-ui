@@ -23,7 +23,7 @@ class AccountOverview extends React.Component {
         let account_id = account_name_to_id[account_name]
         let account = account_id ? cachedAccounts.get(account_id) : null;
         if(!account) return <div>Account {account_name} couldn't be displayed</div>;
-        let balances = accountBalances.get(account.id).map( balance => {
+        let balances = accountBalances.get(account.name).map( balance => {
             balance.amount = parseFloat(balance.amount);
             return (
                 <tr key={balance.asset_id}>
@@ -35,19 +35,21 @@ class AccountOverview extends React.Component {
         });
         let witness_store_state = WitnessStore.getState().witnesses;
         let history = accountHistories.get(account.id).map((trx, index) => {
-            return (
-                <Operation
-                    key={index}
-                    op={trx.op}
-                    block={trx.block_num}
-                    account_id_to_name={account_id_to_name}
-                    assets={assets}
-                    current={account_name}
-                    witnesses={witness_store_state.witnesses}
-                    witness_id_to_name={witness_store_state.witness_id_to_name}
-                    inverted={this.props.settings.get("inverseMarket")}
-                    />
-            );
+            if (index < 10) {
+                return (
+                    <Operation
+                        key={index}
+                        op={trx.op}
+                        block={trx.block_num}
+                        account_id_to_name={account_id_to_name}
+                        assets={assets}
+                        current={account_name}
+                        witnesses={witness_store_state.witnesses}
+                        witness_id_to_name={witness_store_state.witness_id_to_name}
+                        inverted={this.props.settings.get("inverseMarket")}
+                        />
+                );
+            }
         });
         return (
             <div className="grid-content">
@@ -97,7 +99,7 @@ class AccountOverview extends React.Component {
                     </div>
                 </div>
                 <div className="content-block">
-                    <h3>Recent Transactions</h3>
+                <h3>Recent Transactions <Link to="account-history" params={{name: account_name}}><small> (see more) </small></Link></h3>
                     <table className="table">
                         <tbody>
                         {history}

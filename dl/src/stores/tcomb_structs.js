@@ -20,7 +20,8 @@ let Account = t.struct({
     network_fee_percentage: t.Num,
     statistics: t.Str,
     blacklisting_accounts: t.Arr,
-    whitelisting_accounts: t.Arr
+    whitelisting_accounts: t.Arr,
+    cashback_vb: t.maybe(t.Str)
 }, "Account");
 
 let Asset = t.struct({
@@ -48,14 +49,16 @@ let Asset = t.struct({
 // }, "BitAssetData");
 
 let Block = t.struct({
-    delegate_signature: t.Str,
+    extensions: t.Arr,
     id: t.Num,
     next_secret_hash: t.Str,
     previous: t.Str,
     previous_secret: t.Str,
     timestamp: t.Dat,
     transactions: t.Arr,
-    witness: t.Str
+    transaction_merkle_root: t.Str,
+    witness: t.Str,
+    witness_signature: t.Str
 }, "Block");
 
 let WalletTcomb = t.struct({

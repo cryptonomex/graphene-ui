@@ -1,20 +1,41 @@
 import alt from "../alt-instance";
-import utils from "common/utils";
+import utils from "../common/utils";
 import api from "../api/accountApi";
 
-import WalletApi from "rpc_api/WalletApi";
-import WalletActions from "actions/WalletActions";
+import WalletApi from "../rpc_api/WalletApi";
+import WalletDb from "../stores/WalletDb";
+import WalletActions from "../actions/WalletActions"
 
 let accountSubs = {};
 let accountLookup = {};
+let accountSearch = {};
 let wallet_api = new WalletApi();
 
 class AccountActions {
+
+    accountSearch(start_symbol) {
+        let uid = `${start_symbol}_50`;
+            if (!accountSearch[uid]) {
+                accountSearch[uid] = true;
+            return api.lookupAccounts(start_symbol, 50)
+                .then(result => {
+                    accountSearch[uid] = false;
+                    this.dispatch(result);
+            });
+        }
+    }
 
     getAccounts(start_symbol, limit) {
         let uid = `${start_symbol}_${limit}`;
         if (!accountLookup[uid]) {
             accountLookup[uid] = true;
+
+            if (utils.is_object_id(start_symbol) && limit===1) {
+                return api.getObjects(start_symbol).then(result => {
+                    this.dispatch([[result[0].name, result[0].id]]);
+                })
+            }
+
             return api.lookupAccounts(start_symbol, limit)
                 .then(result => {
                     accountLookup[uid] = false;
@@ -144,19 +165,13 @@ class AccountActions {
         return promise;
     }
 
-    createAccount(account_name, wallet_public_name) {
-        return account_name => {
-            return WalletActions.createBrainKeyAccount(
-                account_name,
-                wallet_public_name
-            ).then( result => {
-                this.dispatch(account_name)
-                return account_name
-            }).catch( error => {
-                //TODO notify GUI
-                console.log("ERROR AccountActions.createAccount",error)
-            })
-        }(account_name)
+    createAccount( account_name ) {
+        return WalletActions.createBrainKeyAccount(
+            account_name
+        ).then( () => {
+            this.dispatch(account_name)
+            return account_name
+        })
     }
 
     upgradeAccount(account_id) {
@@ -178,5 +193,6 @@ class AccountActions {
     }
 
 }
+var _console_log = (result)=>{console.log(result)}
 
 module.exports = alt.createActions(AccountActions);
