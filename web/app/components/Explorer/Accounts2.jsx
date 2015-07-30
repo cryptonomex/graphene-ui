@@ -9,12 +9,14 @@ class Accounts2 extends BaseComponent {
 
     constructor() {
        super({account_name:"nathan"},ChainStore);
+       /*
        this.state = {
          account : ChainStore.accounts_by_name.get("nathan") 
        }
+       */
 
-       if( !this.state.account ) 
-          ChainActions.getAccount( this.props.account_name )
+       if( ChainStore.accounts_by_name.has( "nathan" ) )
+          ChainActions.getAccount( "nathan" )
 
        console.log( "Accounts2 constructor" )
     }
@@ -27,20 +29,20 @@ class Accounts2 extends BaseComponent {
        console.log( "changed" );
         if (newState) {
             console.log( "newState2" );
-            this.setState( { account : ChainStore.accounts_by_name.get( this.props.account_name ) } );
-            this.forceUpdate();
+          //  this.setState( { account : ChainStore.accounts_by_name.get( this.props.account_name ) } );
+          //  this.forceUpdate();
         }
     }
 
     render() {
        console.log( "Accounts2 render" );
-        if( this.state.account )
+        if( true ) //this.state.account )
            return (
                <div className="grid-block vertical">
                    <div className="grid-block page-layout">
                        <div className="grid-block medium-6 main-content">
                            <div className="grid-content">
-                           { JSON.stringify( this.state.account, null, 2 ) }
+                           { JSON.stringify( "moo"/*this.state.account*/, null, 2 ) }
                            </div>
                        </div>
                    </div>
