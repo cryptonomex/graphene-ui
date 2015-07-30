@@ -9,19 +9,29 @@ class ChainActions {
        this.dispatch( balance );
     }
 
-    getAccount(name_or_id ) {
+    setVestingBalance( balance ) {
+       console.log( "set vesting balance", balance );
+       this.dispatch( balance );
+    }
 
+    updateObject( object ) {
+      console.log( object )
+      this.dispatch( object )
+    }
+
+    getAccount(name_or_id) {
+
+        console.log( "ChainActions.getAccount()", name_or_id );
         let subscription = (result) => {
-             console.log(this);
-             console.log("sub result:", JSON.stringify(result, null, 2) );
+             console.log("sub result:", result )
 
-              if( result[0][0].id.split('.')[1] == 5 )
-              {
-                 this.actions.setBalance( result[0][0] );
-              }
-
+             if( result[0][0].id.split('.')[1] == 5 )
+                this.actions.setBalance( result[0][0] );
+             else if( result[0][0].id.split('.')[1] == 13 )
+                this.actions.setVestingBalance( result[0][0] );
+             else
+                this.actions.updateObject( result[0][0] );
         };
-        console.log( "ChainActions.getAccount()" );
 
         return api.getFullAccounts( subscription.bind(this) /*subscription.bind(this, name_or_id)*/, name_or_id)
             .then(fullAccount => {
