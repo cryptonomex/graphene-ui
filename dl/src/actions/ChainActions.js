@@ -17,12 +17,6 @@ class ChainActions {
 
               if( result[0][0].id.split('.')[1] == 5 )
               {
-                 /*
-                 let acnt = this.getAccountByID( result[0][0].owner );
-                 acnt.balances[result[0][0].asset_type] = result[0][0].balance;
-                 console.log("acnt", JSON.stringify( acnt, null, 2 ) );
-                 dispatch( acnt );
-                 */
                  this.actions.setBalance( result[0][0] );
               }
 
