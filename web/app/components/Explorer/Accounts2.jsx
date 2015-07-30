@@ -14,10 +14,6 @@ class Accounts2 extends BaseComponent {
          account : ChainStore.accounts_by_name.get("nathan") 
        }
        */
-
-       if( ChainStore.accounts_by_name.has( "nathan" ) )
-          ChainActions.getAccount( "nathan" )
-
        console.log( "Accounts2 constructor" )
     }
 
@@ -35,6 +31,8 @@ class Accounts2 extends BaseComponent {
     }
 
     render() {
+       //if( ChainStore.accounts_by_name.has( "nathan" ) )
+          ChainActions.getAccount( "nathan" )
        console.log( "Accounts2 render" );
         if( true ) //this.state.account )
            return (
