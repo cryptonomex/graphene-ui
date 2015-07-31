@@ -1,59 +1,92 @@
-import BaseStore from "./BaseStore"
-import alt from "../alt-instance"
-import ChainActions from "../actions/ChainActions.js"
-import deepmerge from 'lodash.merge'
-
-class AccountObject
-{
-  constructor( id ) {
-     this.id = id
-     this.balances = {}
-     this.vesting_balances = {}
-  }
-}
+import Immutable from "immutable";
+import utils from "../common/utils";
 
 
-class ChainStore extends BaseStore
+/**
+ *  @brief maintains a local cache of blockchain state 
+ *
+ *  ChainStore is responsible for keeping track of objects,
+ *  indexes, and subscriptions and completely abstracts away
+ *  the websocket API exposed by the server.
+ *
+ *  All objects maintained by the ChainStore are kept Immutable to 
+ *  facilitate easy change detection in the user interface.
+ *
+ *  It is undesirable to subscribe to all objects on the server; therefore,
+ *  the ChainStore tracks the number of local subscribers to a particular object
+ *  and automatically subscribes and unsubscribes from the remote object. It
+ *  is important to manage this in a central place because the server only
+ *  allows one callback per object.
+ *
+ *  When fetching data there are several possible states:
+ *    1. The data is present, in which case it is simply returned
+ *    2. The data is not present, in which case a query is made and a placeholder is
+ *       returned indicating the loading state.
+ *    3. The data is in the loading state, in which case it is simply returned.
+ *    4. The data loading state returns an error, in which case the object state is changed
+ *       from loading to error.
+ *    5. The data is in the error state, in which case it is simply returned
+ *    6. The data is 'stale' in which case a new query is made and a loading placeholder is returned
+ *
+ *  Every time an object is updated, the "last_update" property is set and every time an
+ *  object is queried an optional freshness parameter may be passed which is compared against
+ *  the last update property to determine staleness.  The last_update  property is maintained
+ *  as part of the subscriptions structure and not the object itself to prevent the immutable
+ *  object from being marked as dirty.
+ */
+class ChainStore 
 {
    constructor() {
-      super()
-      this.objects_by_id    = new Map()
-      this.accounts_by_name = new Map()
-      this.assets_by_id     = new Map()
-      this.assets_by_symbol = new Map()
-
-      this.bindListeners({
-         onGetAccount: ChainActions.getAccount,
-         onSetBalance: ChainActions.setBalance,
-         onSetVestingBalance: ChainActions.setVestingBalance,
-         updateObject: ChainActions.updateObject
-      });
-      this._export( "getAccount", "getAsset", "getObject", "getGlobalProperties", "getDynamicGlobalProperties" )
+      this.objects_by_id            = Immutable.Map()
+      this.accounts_by_name         = Immutable.Map()
+      this.assets_by_id             = Immutable.Map()
+      this.assets_by_symbol         = Immutable.Map()
+      this.subscriptions_by_id      = new Map()
+      this.subscriptions_by_account = new Map()
+      this.subscriptions_by_market  = new Map()
    }
 
-   getAccount( name_or_id )
+   getAccount( name_or_id, min_age = null )
    {
-      let id = utils.is_object_id(name_or_id) ? id_or_symbol : this.accounts_by_name.get(name_or_id)
-      return getObject( id )
+      let obj = this.getObject( id_or_symbol ) );
+      return obj ? obj : this.getObject( this.accounts_by_name.get(id_or_symbol) )
    }
 
-   getAsset(id_or_symbol) {
-       let id = utils.is_object_id(id_or_symbol) ? id_or_symbol : this.asset_by_symbol.get(id_or_symbol)
-       return getObject( id )
+   getAsset(id_or_symbol, min_age = null) {
+      let obj = this.getObject( id_or_symbol ) );
+      return obj ? obj : this.getObject( this.assets_by_symbol.get(id_or_symbol) )
    }
 
-   getObject( id ) {
-      return this.objects_by_id.get(id)
+   getObject( id, min_age = null) {
+      if( !utils.is_object_id(id) ) 
+         return null
+
+      let obj =  this.objects_by_id.get(id)
+      if( !obj )
+      {
+         obj = Immutable.Map({id,_loading:true}) )
+         this.objects_by_id = this.objects_by_id.set( id, obj )
+
+         // TODO: start async request to fetch object
+      }
+      /* TODO
+      else if( min_age ) {
+         check to see if we should refetch the object 
+      }
+      */
+      return obj
    }
 
-   getGlobalProperties()
+   getGlobalProperties( min_age = null )
    {
-      return this.objects_by_id.get( "2.0.0" )
+      /// TODO: replace "2.0.0" with constants defined from generated code
+      return getObject( "2.0.0", min_age )
    }
 
-   getDynamicGlobalProperties()
+   getDynamicGlobalProperties( min_age = null )
    {
-      return this.objects_by_id.get( "2.1.0" )
+      /// TODO: replace "2.1.0" with constants defined from generated code
+      return getObject( "2.1.0", min_age )
    }
 
 
