@@ -20,7 +20,7 @@ class ChainStore extends BaseStore
       this.objects_by_id    = new Map()
       this.accounts_by_name = new Map()
       this.assets_by_id     = new Map()
-      this.assets_by_name   = new Map()
+      this.assets_by_symbol = new Map()
 
       this.bindListeners({
          onGetAccount: ChainActions.getAccount,
@@ -28,7 +28,35 @@ class ChainStore extends BaseStore
          onSetVestingBalance: ChainActions.setVestingBalance,
          updateObject: ChainActions.updateObject
       });
+      this._export( "getAccount", "getAsset", "getObject", "getGlobalProperties", "getDynamicGlobalProperties" )
    }
+
+   getAccount( name_or_id )
+   {
+      let id = utils.is_object_id(name_or_id) ? id_or_symbol : this.accounts_by_name.get(name_or_id)
+      return getObject( id )
+   }
+
+   getAsset(id_or_symbol) {
+       let id = utils.is_object_id(id_or_symbol) ? id_or_symbol : this.asset_by_symbol.get(id_or_symbol)
+       return getObject( id )
+   }
+
+   getObject( id ) {
+      return this.objects_by_id.get(id)
+   }
+
+   getGlobalProperties()
+   {
+      return this.objects_by_id.get( "2.0.0" )
+   }
+
+   getDynamicGlobalProperties()
+   {
+      return this.objects_by_id.get( "2.1.0" )
+   }
+
+
    getOrCreateAccount( id )
    {
       let account = this.objects_by_id.get(id)
@@ -68,6 +96,11 @@ class ChainStore extends BaseStore
       let obj = this.getOrCreateObject( object.id )
       deepmerge( obj, object )
       return obj;
+   }
+
+   removeObject( object_id )
+   {
+      this.objects_by_id.delete(object_id)
    }
 
    onSetVestingBalance( balance_object )

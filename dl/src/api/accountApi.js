@@ -61,6 +61,15 @@ class Api {
         console.log( "get_full_accounts: ", args );
         return Apis.instance().db_api().exec("get_full_accounts", args);
     }
+
+    getGlobalProperties()
+    {
+        return Apis.instance().db_api().exec("get_global_properties", args);
+    }
+    getDynamicGlobalProperties()
+    {
+        return Apis.instance().db_api().exec("get_dynamic_global_properties", args);
+    }
 }
 
 export default new Api();
