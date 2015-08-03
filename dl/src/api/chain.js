@@ -1,5 +1,6 @@
 import Immutable from "immutable";
-import utils from "../common/utils";
+import utils from "../common/utils"
+import Apis from "../rpc_api/ApiInstances.js"
 
 
 /**
@@ -80,7 +81,7 @@ class ChainStore
               .then( optional_account_object => {
                   if( optional_account_object )
                   {
-                     let new_obj = this.updateObject( optional_account_object )
+                     let new_obj = this._updateObject( optional_account_object )
                      acnt.id = new_obj.id
                      this.accounts_by_name.set( name, acnt )
                      resolve( new_obj )
@@ -91,6 +92,116 @@ class ChainStore
                   }
               }).catch( error => reject(error) )
       })
+      return acnt.last_promise
+   }
+
+   /**
+    *  Fetches an account and all of its associated data in a single query
+    *
+    *  @param on_update, if not null then this account will be subscribed to
+    *  and any time anything associated with this account changes, the
+    *  method on_update will be called
+    */
+   getFullAccountById( id, on_update = null, min_age_ms = null )
+   {
+      let sub = this.subscriptions_by_account.get( id )
+
+      let now = new Date().getTime()
+      if( !sub )  sub = { last_query : now, subscriptions : new Set()  }
+      if( on_update ) sub.subscriptions.add( on_update )
+
+      if( sub.last_query < now - min_age_ms )
+         sub.last_query = now
+
+      let callback = change => this._updateAccount( id, change )
+
+      if( sub.last_query == now ) {
+         sub.last_promise = new Promise( (resolve,reject) => {
+             Apis.instance().db_api().exec("get_full_accounts", 
+                                           [callback,[id],sub.subscriptions.size > 0])
+                 .then( results => {
+
+                    let full_account = results[0][1]
+                    console.log( "full account: ",  full_account )
+
+                    let {
+                        account, 
+                        vesting_balances, 
+                        statistics, 
+                        call_orders, 
+                        limit_orders, 
+                        referrer_name, registrar_name, lifetime_referrer_name
+                    } = full_account
+
+                    this.accounts_by_name = this.accounts_by_name.set( account.name, account.id )
+
+                    account.referrer_name = referrer_name
+                    account.lifetime_referrer_name = lifetime_referrer_name
+                    account.registrar_name = registrar_name
+                    account.balances = {}
+
+                    for( var i = 0; i < vesting_balances.length; ++i )
+                    {
+                       this._updateObject( vesting_balances[i] )
+                       account.vesting_balances[i] = vesting_balances[i].id
+                    }
+
+                    for( var i = 0; i < full_account.balances.length; ++i )
+                    {
+                       let b = full_account.balances[i]
+                       this._updateObject( b )
+                       account.balances[ b.asset_type ] = b.id
+                    }
+
+                    this._updateObject( statistics )
+                    resolve( this._updateObject( account ) )
+                 }, error => reject( error ) )
+
+         })
+      }
+      this.subscriptions_by_account.set( id, sub )
+      return sub.last_promise
+   }
+
+   getAccountBalance( account, asset_type )
+   {
+      let balances = account.get( 'balances' )
+      if( !balances ) 
+         return 0
+
+      let balance_obj_id = balances.get( asset_type )
+      if( balance_obj_id )
+      {
+         let bal_obj = this.objects_by_id.get( balance_obj_id )
+         console.log("balance obj", bal_obj )
+         if( bal_obj ) return bal_obj.get( 'balance' )
+      }
+      return 0
+   }
+
+   /**
+    *  @return a promise with the account history 
+    */
+   getAccountHistory( account, most_recent, limit )
+   {
+
+        return Apis.instance().history_api().exec("get_account_history", [id, "1." + op_history +".0", count, "1." + op_history + ".9999"]);
+   }
+
+   _updateAccount( id, payload )
+   {
+      console.log( "updateAccount", id, payload ) 
+      let sub = this.subscriptions_by_account.get( id )
+      console.log( "sub: ", sub, "num sub: ", sub.subscriptions.size )
+      let acnt = this.objects_by_id.get(id)
+
+      let updates = payload[0]
+
+      for( let i = 0; i < updates.length; ++i )
+         this._updateObject( updates[i] )
+
+      for( let item of sub.subscriptions )
+         item( acnt )
    }
 
    /**
@@ -98,21 +209,27 @@ class ChainStore
     *  immediately.  Otherwise an asynchronous call will be made to
     *  fetch the object from the server.  
     *
+    *  If we are not subscribed to the object, then min_age_ms will
+    *  be used to determine if the object should be refreshed from 
+    *  the server.
+    *
     *  @return a promise with the object data
     */
-   getObject( id, min_age = null) {
+   getObject( id, min_age_ms = null) {
       if( !utils.is_object_id(id) ) 
          throw Error( "argument is not an object id" )
 
       let current_sub = this.subscriptions_by_id.get(id)
-
-      let now = new Date().getTime()
-      if( current_sub && min_age_ms && current_sub.last_update <= now - min_age_ms )
-         current_sub.last_update = now
-      else if( !current_sub )
+      if( !current_sub )
          current_sub = { last_update: now }
 
-      if( current_sub.now != now ) 
+      console.log( "current_sub: ", current_sub )
+
+      let now = new Date().getTime()
+      if( min_age_ms && current_sub.last_update <= now - min_age_ms )
+         current_sub.last_update = now
+
+      if( current_sub.last_update != now ) 
          return current_sub.last_promise
       
       current_sub.last_promise = new Promise( (resolve, reject ) => {
@@ -120,7 +237,7 @@ class ChainStore
               .then( optional_objects => {
                   let result = optional_objects[0]
                   if( result )
-                      resolve( this.updateObject( result ) )
+                      resolve( this._updateObject( result ) )
                   else
                       reject( Error( "Unable to find object " + id ) )
               }).catch( error => reject(error) )
@@ -177,7 +294,7 @@ class ChainStore
       }
    }
 
-   getAssetBySymbol( name, min_age = null )
+   getAssetBySymbol( name, min_age_ms = null )
    {
    }
 
@@ -188,10 +305,13 @@ class ChainStore
     *  This method will create an immutable object with the given ID if
     *  it does not already exist.
     *
+    *  This is a "private" method called when data is received from the
+    *  server and should not be used by others.
+    *
     *  @pre object.id must be a valid object ID
     *  @return an Immutable constructed from object and deep merged with the current state
     */
-   updateObject( object )
+   _updateObject( object )
    {
       let current = this.objects_by_id.get( object.id )
       let by_id = this.objects_by_id
@@ -205,11 +325,13 @@ class ChainStore
        * replace the last_promise with one that returns the latest object
        */
       let current_sub = this.subscriptions_by_id.get( object.id )
+      if( !current_sub ) current_sub = {}
+
       current_sub.last_update = new Date().getTime()
       current_sub.last_promise = new Promise( (resolve,reject)=>resolve(current) )
 
       /// notify everyone who has subscribed to updates of this object
-      if( subscriptions in current_sub )
+      if( 'subscriptions' in current_sub )
          for( sub of current_sub.subscriptions )
             sub( current )
 
@@ -235,60 +357,6 @@ class ChainStore
       /// given ID  (if we are currently subscribed)
       this.subscriptions_by_id.delete(object_id)
    }
-
-
-
-   onSetVestingBalance( balance_object )
-   {
-      let balance_obj = this.updateObject( balance_object );
-      let account     = this.getOrCreateAccount( balance_obj.owner )
-      account.vesting_balances[ balance_obj.id ] =  balance_obj;
-   }
-
-
-   onSetBalance( balance_object )
-   {
-      console.log( "set balance" );
-      let balance_obj = this.updateObject( balance_object );
-      console.log("balance_obj: ",balance_obj);
-      let account     = this.getOrCreateAccount( balance_obj.owner )
-      console.log("account: ",account);
-      account.balances[ balance_obj.asset_type] =  balance_obj;
-      console.log("balance object:",balance_obj,"account:",account)
-   }
-
-   onGetAccount( full_account )
-   {
-     console.log( "full account: ", full_account )
-     let {
-         account, vesting_balances, statistics, call_orders, limit_orders, referrer_name, registrar_name, lifetime_referrer_name
-     } = full_account
-
-     if( !account.id ) return
-
-     let current_account = this.getOrCreateAccount( account.id )
-     console.log( "current account", current_account )
-     let had_name = 'name' in current_account
-     deepmerge( current_account, account ) 
-     console.log( "merged account", current_account )
-
-     if( !had_name )
-        this.accounts_by_name.set( current_account.name, current_account )
-     console.log( "full account: ", full_account )
-
-     for( var i = 0; i < full_account.balances.length; ++i )
-        this.onSetBalance( full_account.balances[i] )
-
-     for( var i = 0; i < full_account.vesting_balances.length; ++i )
-        this.onSetVestingBalance( full_account.vesting_balances[i] )
-
-     for( var i = 0; i < full_account.vesting_balances.length; ++i )
-        this.onSetVestingBalance( full_account.vesting_balances[i] )
-
-     current_account.stats = this.updateObject( statistics )
- 
-   }
-
 }
 
-module.exports = alt.createStore(ChainStore, "ChainStore")
+export default new ChainStore();

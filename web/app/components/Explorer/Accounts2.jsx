@@ -3,53 +3,59 @@ import {PropTypes} from "react";
 import {Link} from "react-router";
 import Translate from "react-translate-component";
 import BaseComponent from "../BaseComponent";
-import ChainActions from "actions/ChainActions.js"
-import ChainStore from "stores/ChainStore"
+import ChainStore from "api/chain"
 import AltContainer from 'alt/AltContainer';
 import Inspector from "react-json-inspector";
-import cloneDeep from "lodash.clonedeep"
-import clone   from "lodash.clone"
 
 
 class Accounts2 extends BaseComponent {
 
     constructor() {
-       super({account_name:"nathan"},ChainStore);
+       super({account_name:"nathan"});
        this.state = {
          account : null
        }
        console.log( "Accounts2 constructor" )
-           ChainActions.getAccount( "nathan" );
+
+       let comp = this
+
+       ChainStore.getAccountByName( "nathan" )
+                 .then( acnt => {
+                   this.setState( {account:acnt} )
+                   ChainStore.getFullAccountById( acnt.get('id'), ((acnt) =>
+                                       { comp.onAccountUpdate(acnt)
+                                         console.log( "update callback" )} ) )
+                             .then( acnt => comp.setState({account:acnt}),
+                                    err  => console.log( "error looking up account", err ) )
+                 }, err => console.log( "error looking up account" ) )
     }
 
+    onAccountUpdate( acnt ) {
+       console.log( "update account", acnt )
+       this.setState( {account:acnt} )
+    }
+
+    /*
     shouldComponentUpdate(nextProps) {
         return true;
     }
-
-    onChange(newState) {
-       console.log( "changed" );
-        if (newState) {
-            console.log( "newState2" );
-            this.setState( { account : clone(ChainStore.getState().accounts_by_name.get( "nathan" ))/*, inspector_key : Date.now() */} );
-            console.log( "NEW STATE", this.state );
-        }
-    }
+    */
 
     render() {
        console.log( "Accounts2 render" );
-       let accounts = ChainStore.getState().accounts_by_name;
-       let acnt = ChainStore.getState().accounts_by_name.get("nathan");
-       console.log( "RENDER NEW STATE", this.state, "acnt", acnt );
-
        if( this.state.account ) 
        {
+           let name = this.state.account.get('name')
+           let balance = ChainStore.getAccountBalance( this.state.account, "1.3.0" )
+
            return (
                <div className="grid-block vertical">
                    <div className="grid-block page-layout">
                        <div className="grid-block medium-6 main-content">
                            <div className="grid-content">
-                           { JSON.stringify( this.state.account, null, 2 ) }
-                           <Inspector data={this.state.account} key={this.state.inspector_key}/>
+                           { name }<br/>
+                           { balance } CORE
+                           <Inspector data={this.state.account.toJS()} key={this.state.inspector_key}/>
                            { JSON.stringify( this.state.account.balances, null, 2 ) }
                            </div>
                        </div>
@@ -58,7 +64,6 @@ class Accounts2 extends BaseComponent {
            );
        } else
         {
-           ChainActions.getAccount( "nathan" );
            return (
                <div className="grid-block vertical">
                    <div className="grid-block page-layout">
