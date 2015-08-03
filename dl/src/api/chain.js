@@ -1,6 +1,16 @@
 import Immutable from "immutable";
 import utils from "../common/utils"
 import Apis from "../rpc_api/ApiInstances.js"
+import {object_type} from "../chain/chain_types";
+
+let op_history   = parseInt(object_type.operation_history, 10);
+let limit_order  = parseInt(object_type.limit_order, 10);
+let balance_type  = parseInt(object_type.balance, 10);
+let vesting_balance_type  = parseInt(object_type.vesting_balance, 10);
+
+let order_prefix = "1." + limit_order + "."
+let balance_prefix = "1." + balance_type + "."
+let vesting_balance_prefix = "1." + vesting_balance_type + "."
 
 
 /**
@@ -95,6 +105,15 @@ class ChainStore
       return acnt.last_promise
    }
 
+
+   unsubscribeFromAccount( account, on_update )
+   {
+      if( !account ) return
+
+      let sub = this.subscriptions_by_account.get( id )
+      sub.subscriptions.delete( on_update )
+   }
+
    /**
     *  Fetches an account and all of its associated data in a single query
     *
@@ -139,22 +158,27 @@ class ChainStore
                     account.lifetime_referrer_name = lifetime_referrer_name
                     account.registrar_name = registrar_name
                     account.balances = {}
+                    account.orders = new Immutable.Set()
+                    account.vesting_balances = new Immutable.Set()
+                    account.balances = new Immutable.Map()
 
                     for( var i = 0; i < vesting_balances.length; ++i )
                     {
                        this._updateObject( vesting_balances[i] )
-                       account.vesting_balances[i] = vesting_balances[i].id
+                       account.vesting_balances = account.vesting_balances.add( vesting_balances[i].id )
                     }
 
                     for( var i = 0; i < full_account.balances.length; ++i )
                     {
                        let b = full_account.balances[i]
                        this._updateObject( b )
-                       account.balances[ b.asset_type ] = b.id
+                       account.balances = account.balances.set( b.asset_type, full_account.balances[i].id )
                     }
 
                     this._updateObject( statistics )
-                    resolve( this._updateObject( account ) )
+                    let updated_account = this._updateObject( account )
+                    resolve( updated_account )
+                    this.getRecentHistory( updated_account )
                  }, error => reject( error ) )
 
          })
@@ -180,29 +204,128 @@ class ChainStore
    }
 
    /**
+    * There are two ways to extend the account history, add new more
+    * recent history, and extend historic hstory. This method will fetch
+    * the most recent account history and prepend it to the list of
+    * historic operations.
+    *
+    *  @param account immutable account object
     *  @return a promise with the account history 
     */
-   getAccountHistory( account, most_recent, limit )
+   getRecentHistory( account, limit = 100 )
    {
+      /// TODO: make sure we do not submit a query if there is already one
+      /// in flight...
+        let account_id = account.get('id')
+        let most_recent = "1." + op_history + ".0"
+        let history = account.get( 'history' )
 
-        return Apis.instance().history_api().exec("get_account_history", [id, "1." + op_history +".0", count, "1." + op_history + ".9999"]);
+        if( history && history.size )  most_recent = history.first().get('id')
+
+        if( history )
+           console.log( 'first', history.first().toJS() )
+        console.log( 'most recent:',most_recent )
+
+        /// starting at 0 means start at NOW, set this to something other than 0
+        /// to skip recent transactions and fetch the tail
+        let start = "1." + op_history + ".0"
+
+        console.log( "get_account_history: ", account_id, most_recent, limit, start)
+        let prom = new Promise( (resolve, reject) => {
+            Apis.instance().history_api().exec("get_account_history", 
+                              [ account_id, most_recent, limit, start])
+                .then( operations => {
+                       console.log( "ops", operations )
+                       let current_account = this.objects_by_id.get( account_id )
+                       let current_history = current_account.get( 'history' )
+                       if( !current_history ) current_history = Immutable.List()
+                       let updated_history = Immutable.fromJS(operations);
+                       updated_history = updated_history.withMutations( list => {
+                              for( let i = 0; i < current_history.size; ++i )
+                                  list.push( current_history.get(i) )
+                                                      } )
+                       let updated_account = current_account.set( 'history', updated_history )
+                       this.objects_by_id = this.objects_by_id.set( account_id, updated_account )
+
+                       if( current_history != updated_history )
+                          this._notifyAccountSubscribers( account_id )
+
+                       resolve(updated_account)
+                       }) // end then
+                     })
+        return prom
+
    }
 
-   _updateAccount( id, payload )
+   _notifyAccountSubscribers( account_id )
    {
-      console.log( "updateAccount", id, payload ) 
-      let sub = this.subscriptions_by_account.get( id )
-      console.log( "sub: ", sub, "num sub: ", sub.subscriptions.size )
-      let acnt = this.objects_by_id.get(id)
-
-      let updates = payload[0]
-
-      for( let i = 0; i < updates.length; ++i )
-         this._updateObject( updates[i] )
-
+      let sub = this.subscriptions_by_account.get( account_id )
+      let acnt = this.objects_by_id.get(account_id)
+      if( !sub ) return
       for( let item of sub.subscriptions )
          item( acnt )
    }
+
+   /**
+    *  Callback that receives notification of objects that have been
+    *  added, remove, or changed and are relevant to account_id
+    *
+    *  This method updates or removes objects from the main index and
+    *  then updates the account object with relevant meta-info depending
+    *  upon the type of account
+    */
+   _updateAccount( account_id, payload )
+   {
+      let updates = payload[0]
+      let acnt = this.objects_by_id.get(account_id)
+
+      for( let i = 0; i < updates.length; ++i )
+      {
+         let update = updates[i]
+         if( typeof update  == 'string' )
+         {
+            let old_obj = this._removeObject( update )
+
+            if( update.search( order_prefix ) == 0 )
+            {
+                  acnt = acnt.setIn( ['orders'], set => set.delete(update) )
+            }
+            else if( update.search( vesting_balance_prefix ) == 0 )
+            {
+                  acnt = acnt.setIn( ['vesting_balances'], set => set.delete(update) )
+            }
+         }
+         else
+         {
+            let updated_obj = this._updateObject( update )
+
+            if( update.id.search( balance_prefix ) == 0 )
+            {
+               if( update.owner == account_id )
+                  acnt = acnt.setIn( ['balances'], map => map.set(update.asset_type,update.id) )
+            }
+            else if( update.id.search( order_prefix ) == 0 )
+            {
+               if( update.owner == account_id )
+                  acnt = acnt.setIn( ['orders'], set => set.add(update.id) )
+            }
+            else if( update.id.search( vesting_balance_prefix ) == 0 )
+            {
+               if( update.owner == account_id )
+                  acnt = acnt.setIn( ['vesting_balances'], set => set.add(update.id) )
+            }
+
+            this.objects_by_id = this.objects_by_id.set( acnt.id, acnt )
+         }
+      }
+      this.getRecentHistory( acnt ) 
+      this._notifyAccountSubscribers( account_id )
+   }
+
+   _removeObject( object_id )
+   {
+   }
+
 
    /**
     *  If the data is in the cache then the promise will resolve
