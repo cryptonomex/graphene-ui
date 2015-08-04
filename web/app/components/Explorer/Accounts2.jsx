@@ -15,24 +15,35 @@ class Accounts2 extends BaseComponent {
        this.state = {
          account : null
        }
+
+       this.update_callback = acnt => this.setState( {account:acnt} )
+
        console.log( "Accounts2 constructor" )
+    }
 
-       let comp = this
+    componentWillReceiveProps( next_props )
+    {
+        //this.setState({ });
+    }
 
+    componentDidMount()
+    {
        ChainStore.getAccountByName( "nathan" )
                  .then( acnt => {
                    this.setState( {account:acnt} )
-                   ChainStore.getFullAccountById( acnt.get('id'), ((acnt) =>
-                                       { comp.onAccountUpdate(acnt)
-                                         console.log( "update callback" )} ) )
-                             .then( acnt => comp.setState({account:acnt}),
+                   ChainStore.getFullAccountById( acnt.get('id'),  this.update_callback ) 
+                             .then( acnt => this.setState({account:acnt}),
                                     err  => console.log( "error looking up account", err ) )
                  }, err => console.log( "error looking up account" ) )
+       ChainStore.getAssetBySymbol( "CORE" )
+                 .then( asset => {
+                        this.setState( {asset} )
+                        }, err => console.log( "error fetching asset", err ) )
     }
 
-    onAccountUpdate( acnt ) {
-       console.log( "update account", acnt )
-       this.setState( {account:acnt} )
+    componentWillUnmount()
+    {
+          ChainStore.unsubscribeFromAccount( this.state.account, this.update_callback )
     }
 
     /*
@@ -47,6 +58,7 @@ class Accounts2 extends BaseComponent {
        {
            let name = this.state.account.get('name')
            let balance = ChainStore.getAccountBalance( this.state.account, "1.3.0" )
+           let asset = this.state.asset ? this.state.asset.toJS() : {}
 
            return (
                <div className="grid-block vertical">
@@ -55,6 +67,7 @@ class Accounts2 extends BaseComponent {
                            <div className="grid-content">
                            { name }<br/>
                            { balance } CORE
+                           <Inspector data={asset} key={this.state.inspector_key}/>
                            <Inspector data={this.state.account.toJS()} key={this.state.inspector_key}/>
                            { JSON.stringify( this.state.account.balances, null, 2 ) }
                            </div>

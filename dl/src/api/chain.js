@@ -30,20 +30,16 @@ let vesting_balance_prefix = "1." + vesting_balance_type + "."
  *  allows one callback per object.
  *
  *  When fetching data there are several possible states:
- *    1. The data is present, in which case it is simply returned
- *    2. The data is not present, in which case a query is made and a placeholder is
- *       returned indicating the loading state.
- *    3. The data is in the loading state, in which case it is simply returned.
- *    4. The data loading state returns an error, in which case the object state is changed
- *       from loading to error.
- *    5. The data is in the error state, in which case it is simply returned
- *    6. The data is 'stale' in which case a new query is made and a loading placeholder is returned
+ *    1. The data is present, in which case a promise that resolves immediately is returned
+ *    2. The data is not present and there is no pending query, in which case a new promise is
+ *       constructed that resolves when the data becomes available.
+ *    3. The data is not present and there is already a pending query, in which case the same
+ *       promise is returned. 
+ *    4. The data is present, but 'stale' in which case a new query is made 
  *
- *  Every time an object is updated, the "last_update" property is set and every time an
- *  object is queried an optional freshness parameter may be passed which is compared against
- *  the last update property to determine staleness.  The last_update  property is maintained
- *  as part of the subscriptions structure and not the object itself to prevent the immutable
- *  object from being marked as dirty.
+ *  By default objects are simply fetched and cached.  Depending upon the use case, you
+ *  may want to ensure that the data is a minimal age and refetch it if it is older.  
+ *
  */
 class ChainStore 
 {
@@ -52,9 +48,48 @@ class ChainStore
       this.accounts_by_name         = Immutable.Map()
       this.assets_by_id             = Immutable.Map()
       this.assets_by_symbol         = Immutable.Map()
+      this.account_history_requests = new Map() ///< tracks pending history requests
       this.subscriptions_by_id      = new Map()
       this.subscriptions_by_account = new Map()
       this.subscriptions_by_market  = new Map()
+   }
+
+   getAssetBySymbol( symbol, min_age_ms = null )
+   {
+      let asset = this.assets_by_symbol.get(symbol)
+      if( asset && 'id' in asset )
+         return getObject( asset.id, min_age_ms )
+
+      let now = new Date().getTime()
+      if( asset && min_age_ms && asset.last_query <= now - min_age_ms )
+         asset.last_query = now
+      else if( !asset )
+         asset = { last_query : now }
+
+      if( asset.last_query != now && 'last_promise' in asset  )
+         return asset.last_promise
+
+      asset.last_promise = new Promise( (resolve,reject ) => {
+          Apis.instance().db_api().exec( "lookup_asset_symbols", [ [symbol] ] )
+              .then( asset_objects => {
+                  console.log( "assets a: ",asset_objects )
+                  if( asset_objects.length && asset_objects[0] )
+                  {
+                     console.log( "assets: ", asset_objects )
+                     let new_obj = this._updateObject( asset_objects[0] )
+                     asset.id = new_obj.id
+                     this.assets_by_symbol.set( symbol, asset )
+                     resolve( new_obj )
+                  }
+                  else
+                  {
+                     reject( Error("Asset " + symbol + " was not found" ) )
+                  }
+              }).catch( error => reject(error) )
+      })
+
+      this.assets_by_symbol.set( symbol, asset )
+      return asset.last_promise
    }
 
    /**
@@ -68,7 +103,7 @@ class ChainStore
    getAccountByName( name, min_age_ms = null )
    {
       let acnt = this.accounts_by_name.get(name)
-      if( acnt && id in acnt )
+      if( acnt && 'id' in acnt )
          return getObject( acnt.id, min_age_ms )
 
       let now = new Date().getTime()
@@ -77,7 +112,7 @@ class ChainStore
       else if( !acnt )
          acnt = { last_query : now }
 
-      if( acnt.last_query != now && last_promise in acnt )
+      if( acnt.last_query != now && 'last_promise' in acnt )
          return acnt.last_promise
 
       /** make a websocket json-rpc call to get_account_by_name and pass it 
@@ -102,15 +137,19 @@ class ChainStore
                   }
               }).catch( error => reject(error) )
       })
+      this.accounts_by_name.set( name, acnt )
       return acnt.last_promise
    }
+
+
 
 
    unsubscribeFromAccount( account, on_update )
    {
       if( !account ) return
 
-      let sub = this.subscriptions_by_account.get( id )
+      let sub = this.subscriptions_by_account.get( account.get('id') )
+      console.log( "sub: ", sub )
       sub.subscriptions.delete( on_update )
    }
 
@@ -152,7 +191,7 @@ class ChainStore
                         referrer_name, registrar_name, lifetime_referrer_name
                     } = full_account
 
-                    this.accounts_by_name = this.accounts_by_name.set( account.name, account.id )
+                    this.accounts_by_name = this.accounts_by_name.setIn( [account.name], acnt => acnt.id = account.id )
 
                     account.referrer_name = referrer_name
                     account.lifetime_referrer_name = lifetime_referrer_name
@@ -217,13 +256,22 @@ class ChainStore
       /// TODO: make sure we do not submit a query if there is already one
       /// in flight...
         let account_id = account.get('id')
+
+        let pending_request = this.account_history_requests.get(account_id)
+        if( pending_request ) 
+        {
+           console.log( "queueing get history request" )
+           pending_request.requests++
+           return pending_request.promise
+        }
+        else pending_request = { requests: 0 }
+
+
         let most_recent = "1." + op_history + ".0"
         let history = account.get( 'history' )
 
         if( history && history.size )  most_recent = history.first().get('id')
 
-        if( history )
-           console.log( 'first', history.first().toJS() )
         console.log( 'most recent:',most_recent )
 
         /// starting at 0 means start at NOW, set this to something other than 0
@@ -231,7 +279,7 @@ class ChainStore
         let start = "1." + op_history + ".0"
 
         console.log( "get_account_history: ", account_id, most_recent, limit, start)
-        let prom = new Promise( (resolve, reject) => {
+        pending_request.promise = new Promise( (resolve, reject) => {
             Apis.instance().history_api().exec("get_account_history", 
                               [ account_id, most_recent, limit, start])
                 .then( operations => {
@@ -250,11 +298,22 @@ class ChainStore
                        if( current_history != updated_history )
                           this._notifyAccountSubscribers( account_id )
 
-                       resolve(updated_account)
+                       let pending_request = this.account_history_requests.get(account_id)
+                       this.account_history_requests.delete(account_id)
+                       if( pending_request.requests > 0 )
+                       {
+                          // it looks like some more history may have come in while we were
+                          // waiting on the result, lets fetch anything new before we resolve
+                          // this query.
+                          this.getRecentHistory(updated_account, limit ).then( resolve, reject )
+                       }
+                       else
+                          resolve(updated_account)
                        }) // end then
                      })
-        return prom
 
+        this.account_history_requests.set( account_id, pending_request )
+        return pending_request.promise
    }
 
    _notifyAccountSubscribers( account_id )
@@ -383,7 +442,7 @@ class ChainStore
          this.subscriptions_by_id.set( id, current_sub )
       }
 
-      if( !(subscriptions in current_sub ) )
+      if( !('subscriptions' in current_sub ) )
          current_sub.subscriptions = new Map()
       let original_size = current_sub.subscriptions.size
       current_sub.subscriptions.set( subscriber, on_update )
@@ -405,7 +464,7 @@ class ChainStore
    {
       let current_sub = this.subscriptions_by_id.get(id)
       if( !current_sub ) return
-      if( !(subscriptions in current_sub) ) return
+      if( !('subscriptions' in current_sub) ) return
 
       if( current_sub.subscriptions.delete( subscriber ) )
       {
@@ -415,10 +474,6 @@ class ChainStore
               // this particular object
           }
       }
-   }
-
-   getAssetBySymbol( name, min_age_ms = null )
-   {
    }
 
    /**
