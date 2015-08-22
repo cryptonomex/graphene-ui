@@ -147,6 +147,16 @@ h1, h2, h3, h4, h5, h6 {
       color: $error-text-color
     }
   }
+  .circle-wrapper {
+    .circle:before {
+      background-color: $primary-text-color;
+    }
+  }
+  .table {
+    > thead > tr > th, > tbody > tr > td {
+      border-bottom-color: darken($secondary-text-color, 10%);
+    }
+  }
 }
 
 .footer {
@@ -279,11 +289,11 @@ h1, h2, h3, h4, h5, h6 {
 // tables
 .table {
   > thead > tr > th {
-    border-bottom: 2px solid darken($secondary-text-color, 10%);
+    border-bottom-color: $dark-text-color;
     color: $secondary-text-color;
   }
   > tbody > tr > td {
-    border-bottom: 1px solid darken($secondary-text-color, 10%);
+    border-bottom-color: $dark-text-color;
   }
   &.table-hover > tbody > tr:hover > td, .table-hover > tbody > tr:hover > th {
     background-color: lighten($bg-color, 4%);
@@ -328,12 +338,12 @@ div.has-error > input, div.has-error > input:hover, div.has-error > input:focus 
 }
 
 input[type="text"], input[type="password"], input[type="email"], input[type="number"], input[type="search"], textarea, select {
-  background-color: #e0e0e0;
+  background-color: #ddd;
   &:hover, &:focus, &:active {
-    background-color: #e0e0e0;
+    background-color: #ddd;
   }
   &:focus {
-    border-color: $light-text-color;
+    border-color: #aaa;
   }
 }
 
@@ -462,10 +472,4 @@ td.orderHistoryBid {
    .circle:before {
      background-color: $secondary-text-color;
    }
-}
-
-.modal .circle-wrapper {
-  .circle:before {
-    background-color: $primary-text-color;
-  }
 }

@@ -46,13 +46,14 @@ class Signature
     ###
     @param {Buffer}
     @param {./PrivateKey}
+    @param {./PublicKey} optional for performance
     @return {./Signature}
     ###
-    Signature.signBuffer = (buf, private_key) ->
-        _hash = hash.sha256 buf
-        nonce = 0
+    Signature.signBuffer = (buf, private_key, public_key) ->
         i = null
-        # https://github.com/bitcoinjs/bitcoinjs-lib/issues/334
+        nonce = 0
+        _hash = hash.sha256 buf
+        e = BigInteger.fromBuffer(_hash)
         while true
             ecsignature = ecdsa.sign curve, _hash, private_key.d, nonce++
             der = ecsignature.toDER()
@@ -60,15 +61,14 @@ class Signature
             lenS = der[5+lenR]
             #console.log 'len r',lenR, 'len s',lenS
             if lenR is 32 and lenS is 32 # canonical
-                e = BigInteger.fromBuffer(_hash);
                 i = ecdsa.calcPubKeyRecoveryParam curve, e, ecsignature, private_key.toPublicKey().Q
                 i += 4 #compressed
                 i += 27 #compact
                 break
             
             # signing is slow, keep an eye out for this...
-            console.log "WARN: at least 10 attempts to find canonical signature" if nonce is 10
-            throw new Error "Too many attempts: "+nonce if nonce is 100
+            if nonce % 10 == 0
+                console.log "WARN: #{nonce} attempts to find canonical signature"
         
         new Signature ecsignature.r, ecsignature.s, i
     

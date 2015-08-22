@@ -10,12 +10,14 @@ class Dashboard extends Component {
     }
 
     render() {
-        let itemRows = this.props.linkedAccounts.map( a => <AccountCard full_accounts={ {account: a} } /> ).toArray();
+        let itemRows = this.props.linkedAccounts.map( a => <AccountCard key={a} full_accounts={ {account: a} } /> ).toArray();
 
         return (
             <div className="grid-block page-layout">
-                <div className="grid-block regular-padding small-up-1 medium-up-2 large-up-3">
-                    {itemRows}
+                <div style={{alignItems: "flex-start", overflowY: "auto", zIndex: 1}}>
+                    <div className="grid-block regular-padding small-up-1 medium-up-2 large-up-3">
+                        {itemRows}
+                    </div>
                 </div>
                 <div className="grid-block medium-3 right-column">
                     <div className="grid-content">
