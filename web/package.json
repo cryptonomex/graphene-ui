@@ -5,6 +5,7 @@
   "homepage": "https://github.com/cryptonomex/graphene_ui",
   "author": "Cryptonomex, Inc.",
   "license": "LicenseRef-LICENSE",
+  "main": "electron.js",
   "engines": {
     "node": "0.12.2",
     "npm": "2.8.3"
