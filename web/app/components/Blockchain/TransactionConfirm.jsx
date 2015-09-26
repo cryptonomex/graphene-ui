@@ -40,7 +40,7 @@ class TransactionConfirm extends BaseComponent {
         if ( !this.state.transaction || this.state.closed ) {return null; }
 
         let button_group, header;
-        if(this.state.error || this.state.broadcast) {
+        if(this.state.error || this.state.included) {
             header = this.state.error ? (
                 <div className="modal-header has-error">
                     <Translate component="h3" content="transaction.broadcast_fail" />
@@ -50,8 +50,20 @@ class TransactionConfirm extends BaseComponent {
                 (
                 <div className="modal-header">
                     <div className="float-left"><Icon name="checkmark-circle" size="4x" className="success"/></div>
-                    <Translate component="h3" content="transaction.broadcast_success" />
+                    <Translate component="h3" content="transaction.transaction_confirmed" />
                     <h6>#{this.state.trx_id}@{this.state.trx_block_num}</h6>
+                </div>
+            );
+            button_group = (
+                <div className="button-group">
+                    <a href className="button" onClick={this.onCloseClick.bind(this)}><Translate content="transfer.close" /></a>
+                </div>
+            );
+        } else if (this.state.broadcast) {
+            header = (
+                <div className="modal-header">
+                    <Translate component="h3" content="transaction.broadcast_success" />
+                    <h6>Waiting for confirmation..</h6>
                 </div>
             );
             button_group = (
@@ -61,18 +73,18 @@ class TransactionConfirm extends BaseComponent {
             );
         } else if (this.state.broadcasting) {
             header = (
-                <div className="shrink grid-block">
+                <div className="modal-header">
                     <Translate component="h3" content="transaction.broadcasting" />
                 </div>
             );
             button_group = (
                 <div className="button-group">
-                    <LoadingIndicator type="circle"/> &nbsp; <Translate content="transaction.broadcasting_short" />
+                    <a href className="button disabled"><Translate content="transfer.close" /></a>
                 </div>
             );
         } else {
             header = (
-                <div className="shrink grid-block">
+                <div className="modal-header">
                     <Translate component="h3" content="transaction.confirm" />
                 </div>
             );

@@ -23,7 +23,7 @@ class PrivateKeyStore extends BaseStore {
         super()
         this.state = this._getInitialState()
         this.pending_operation_count = 0
-        ChainStore.subscribe(this.chainStoreUpdate.bind(this))
+        //ChainStore.subscribe(this.chainStoreUpdate.bind(this))
         this._export("hasKey", "getPubkeys", "getTcomb_byPubkey",
             "getPubkeys_having_PrivateKey", "loadDbData", "onAddKey");
     }
@@ -83,6 +83,7 @@ class PrivateKeyStore extends BaseStore {
         var norefs = Immutable.Set()
         var account_refs = Immutable.Set()
         this.state.keys.keySeq().forEach( pubkey => {
+                                          /*
             var refs = ChainStore.getAccountRefsOfKey(pubkey)
             if(refs === null) norefs = norefs.add(pubkey)
             else if(refs === undefined) {
@@ -90,9 +91,9 @@ class PrivateKeyStore extends BaseStore {
                 return
             }
             account_refs = account_refs.add(refs.valueSeq())
+            */
         })
         account_refs = account_refs.flatten()
-        console.log("account_refs", account_refs)
         if(!this.state.account_refs.equals(account_refs))
             this.setState({account_refs})
         if(!this.no_account_refs.equals(norefs))
@@ -153,7 +154,7 @@ class PrivateKeyStore extends BaseStore {
                     return
                 }
                 var private_key_tcomb = PrivateKeyTcomb(cursor.value)
-                ChainStore.getAccountRefsOfKey(private_key_tcomb.pubkey)
+                //ChainStore.getAccountRefsOfKey(private_key_tcomb.pubkey)
                 keys.set(private_key_tcomb.pubkey, private_key_tcomb)
                 if(emtpy_addresses) updateAddressMap(addresses, private_key_tcomb.pubkey)
                 cursor.continue()
@@ -186,8 +187,10 @@ class PrivateKeyStore extends BaseStore {
         })
         this.setState({keys: this.state.keys, addresses: this.state.addresses})
 
+           /*
         if(ChainStore.getAccountRefsOfKey(private_key_object.pubkey) !== undefined)
             this.chainStoreUpdate()
+            */
         
         var p = new Promise((resolve, reject) => {
             PrivateKeyTcomb(private_key_object)
@@ -240,7 +243,6 @@ function loadAddyMap() {
 }
 
 function updateAddressMap(addresses, pubkey) {
-    console.log("updateAddressMap", updateAddressMap)
     var public_key = PublicKey.fromPublicKeyString(pubkey)
     var address_strings = [
         //legacy formats

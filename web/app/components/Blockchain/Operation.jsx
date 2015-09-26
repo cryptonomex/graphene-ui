@@ -17,8 +17,6 @@ import LinkToAccountById from "../Blockchain/LinkToAccountById";
 import LinkToAssetById from "../Blockchain/LinkToAssetById";
 import BindToChainState from "../Utility/BindToChainState";
 import FormattedPrice from "../Utility/FormattedPrice";
-import {FormattedRelative} from "react-intl";
-
 
 require("./operations.scss");
 
@@ -71,7 +69,8 @@ class Operation extends React.Component {
         current: "",
         block: false,
         hideDate: false,
-        hideFee: false
+        hideFee: false,
+        hideOpLabel: false
     }
 
     static propTypes = {
@@ -274,8 +273,8 @@ class Operation extends React.Component {
             case "account_update":
                 column = (
                     <span>
+                        {this.linkToAccount(op[1].account)}&nbsp;
                         <Translate component="span" content="transaction.update_account" /> 
-                        &nbsp;{this.linkToAccount(op[1].account)}
                     </span>
                 );
                 break;
@@ -299,11 +298,22 @@ class Operation extends React.Component {
                 break;
 
             case "account_upgrade":
-                column = (
-                    <span>
-                        <Translate component="span" content="transaction.upgrade_account" />
-                    </span>
-                );
+                if( op[1].upgrade_to_lifetime_member ) {
+                   column = (
+                       <span>
+                       {this.linkToAccount(op[1].account_to_upgrade) } &nbsp; 
+                           <Translate component="span" content="transaction.lifetime_upgrade_account" />
+                       </span>
+                   );
+                } else {
+                   column = (
+                       <span>
+                       {this.linkToAccount(op[1].account_to_upgrade) } &nbsp; 
+                           <Translate component="span" content="transaction.annual_upgrade_account" />
+                       </span>
+                   );
+
+                }
                 break;
 
             case "account_transfer":
@@ -439,8 +449,6 @@ class Operation extends React.Component {
                     <span>
                         {this.linkToAccount(op[1].publisher)}&nbsp;
                         <Translate component="span" content="transaction.publish_feed" />
-                        &nbsp;{this.linkToAsset(op[1].asset_id)}
-                        &nbsp;<Translate component="span" content="transaction.at" />
                         &nbsp;<FormattedPrice
                             base_asset={op[1].feed.settlement_price.base.asset_id}
                             quote_asset={op[1].feed.settlement_price.quote.asset_id}
