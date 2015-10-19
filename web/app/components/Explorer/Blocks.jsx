@@ -27,7 +27,7 @@ class BlockTimeAgo extends React.Component {
     }
 
     render() {
-        let {blockTime} = this.props;
+        let {blockTime, block} = this.props;
 
         // let timePassed = Date.now() - blockTime;
         let timePassed = (new Date()).getTime() - (new Date(blockTime)).getTime();
@@ -40,7 +40,7 @@ class BlockTimeAgo extends React.Component {
         );
 
         return (
-            blockTime ? <h3 className={textClass} ><TimeAgo time={blockTime} /></h3> : null
+            blockTime ? <h3 className={textClass} ><TimeAgo block={block} time={blockTime} /></h3> : null
         );
 
     }
@@ -115,6 +115,7 @@ class Blocks extends React.Component {
         let {latestBlocks, latestTransactions, globalObject, dynGlobalObject} = this.props;
         let blocks = null, transactions = null;
         let headBlock = null;
+        let currentBlock = null;
         let trxCount = 0, blockCount = latestBlocks.size, trxPerSec = 0, blockTimes = [], avgTime = 0;
 
         if (latestBlocks && latestBlocks.size >= 20) {
@@ -187,6 +188,8 @@ class Blocks extends React.Component {
                 return previous + current[1] / array.length;
             }, 0);
 
+            currentBlock = dynGlobalObject.get("head_block_number");
+
             trxPerSec = trxCount / ((lastBlock - firstBlock) / 1000);
         }
 
@@ -205,7 +208,7 @@ class Blocks extends React.Component {
                         <div className="grid-content no-overflow">
 
                             <span className="txtlabel subheader"><Translate component="span" content="explorer.blocks.last_block" /></span>
-                              <BlockTimeAgo blockTime={headBlock} />
+                              <BlockTimeAgo block={currentBlock} blockTime={headBlock} />
                         </div>
                     </div>
                     <div className="grid-block text-center small-6 medium-3">
