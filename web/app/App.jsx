@@ -276,7 +276,11 @@ let routes = (
 );
 
 
-Router.run(routes, Handler => {
+// Router.run(routes, Handler => {
+//     React.render(<Handler/>, document.getElementById("content"));
+// });
+
+// enable HTML5 history API
+Router.run(routes, Router.HistoryLocation, function (Handler) {
     React.render(<Handler/>, document.getElementById("content"));
 });
-
