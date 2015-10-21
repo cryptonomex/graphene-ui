@@ -15,6 +15,7 @@ import TransactionConfirmStore from "stores/TransactionConfirmStore";
 import LoadingIndicator from "../LoadingIndicator";
 import WalletActions from "actions/WalletActions";
 import Translate from "react-translate-component";
+import cookies from "cookies-js";
 
 @connectToStores
 class CreateAccount extends React.Component {
@@ -31,12 +32,15 @@ class CreateAccount extends React.Component {
 
     constructor() {
         super();
-        this.state = {validAccountName: false, accountName: "", validPassword: false, registrar_account: null, loading: false};
-        this.onFinishConfirm = this.onFinishConfirm.bind(this)
+        let refcode_match = window.location.hash.match(/refcode\=([\w\d]+)/);
+        let refcode = refcode_match ? refcode_match[1] : cookies.get("refcode");
+        this.state = {validAccountName: false, accountName: "", validPassword: false, registrar_account: null, loading: false, refcode};
+        this.onFinishConfirm = this.onFinishConfirm.bind(this);
+        this.onRefcodeChange = this.onRefcodeChange.bind(this);
     }
 
     isValid() {
-        let first_account = AccountStore.getMyAccounts().length === 0;
+        let first_account = true; //AccountStore.getMyAccounts().length === 0;
         let valid = this.state.validAccountName;
         if (!WalletDb.getWallet()) valid = valid && this.state.validPassword;
         if (!first_account) valid = valid && this.state.registrar_account;
@@ -65,9 +69,10 @@ class CreateAccount extends React.Component {
     }
 
     createAccount(name) {
+        console.log("-- CreateAccount.createAccount refcode -->", this.state.refcode);
         WalletUnlockActions.unlock().then(() => {
             this.setState({loading: true});
-            AccountActions.createAccount(name, this.state.registrar_account, this.state.registrar_account).then(() => {
+            AccountActions.createAccount(name, this.state.registrar_account, this.state.registrar_account, 0, this.state.refcode ? this.state.refcode.trim() : null).then(() => {
                 if(this.state.registrar_account) {
                     this.setState({loading: false});
                     TransactionConfirmStore.listen(this.onFinishConfirm);
@@ -120,9 +125,13 @@ class CreateAccount extends React.Component {
         this.setState({registrar_account});
     }
 
+    onRefcodeChange(e) {
+        this.setState({refcode: e.target.value});
+    }
+
     render() {
         let my_accounts = AccountStore.getMyAccounts()
-        let first_account = my_accounts.length === 0;
+        let first_account = true; //my_accounts.length === 0;
         let valid = this.isValid();
         let buttonClass = classNames("button", {disabled: !valid});
         return (
@@ -151,8 +160,13 @@ class CreateAccount extends React.Component {
                                                   onChange={this.onAccountNameChange.bind(this)}
                                                   accountShouldNotExist={true}/>
 
+                                <div>
+                                    <label>Referral Code (optional)</label>
+                                    <input type="text" ref="refcode" value={this.state.refcode} onChange={this.onRefcodeChange}/>
+                                </div>
+
                                 {WalletDb.getWallet() ?
-                                    null :
+                                    <br/> :
                                     <PasswordInput ref="password" confirmation={true} onChange={this.onPasswordChange.bind(this)}/>
                                 }
                                 {
