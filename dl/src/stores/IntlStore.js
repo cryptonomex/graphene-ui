@@ -8,9 +8,20 @@ counterpart.registerTranslations("en", locale_en);
 class IntlStore extends BaseStore {
     constructor() {
         super();
-        this.currentLocale = "en";
-        this.locales = ["en"];
-        this.localesObject = {en: locale_en};
+
+        this.localesObject = {"en": locale_en};
+        this.locales = ["en","cn","fr","ko","de","es","tr"];
+
+        let defaultLang = (window.navigator.language || window.navigator.userLanguage).toLowerCase().replace(/-.*/,'');
+        if (defaultLang == "zh") {
+            defaultLang = "cn";
+        }
+
+        if (!this.hasLocale(defaultLang)) {
+            defaultLang = "en";
+        }
+
+        this.onSwitchLocale(defaultLang);
 
         this.bindListeners({
             onSwitchLocale: IntlActions.switchLocale,
