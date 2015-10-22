@@ -60,7 +60,8 @@ module.exports = {
             upgrade_lifetime: "购买终身会籍",
             subscribe: "购买1年会籍",
             expires: "过期时间",
-            membership_expiration: "会籍过期时间"
+            membership_expiration: "会籍过期时间",
+            your_referal_link: "专属推荐链接"
         },
         connections: {
             known: "识别为",
