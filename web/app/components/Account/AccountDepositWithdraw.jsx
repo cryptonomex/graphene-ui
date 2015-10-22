@@ -19,6 +19,7 @@ import Trigger from "react-foundation-apps/src/trigger";
 import ZfApi from "react-foundation-apps/src/utils/foundation-api";
 import AccountBalance from "../Account/AccountBalance";
 import BalanceComponent from "../Utility/BalanceComponent";
+import RefcodeInput from "../Forms/RefcodeInput";
 
 
 @BindToChainState({keep_updating:true})
@@ -257,6 +258,12 @@ class AccountDepositWithdraw extends React.Component {
                        </tbody>
                    </table>
                </div>
+          </div>
+          <div className="grid-block vertical shrink">
+              <RefcodeInput
+                  label="refcode.claim_refcode"
+                  action_label="refcode.claim"
+                  allow_claim_to_account={this.props.account.get('name')} />
           </div>
       </div>
       )

@@ -33,7 +33,7 @@ class CreateAccount extends React.Component {
     constructor() {
         super();
         let refcode_match = window.location.hash.match(/refcode\=([\w\d]+)/);
-        let refcode = refcode_match ? refcode_match[1] : cookies.get("refcode");
+        let refcode = refcode_match ? refcode_match[1] : cookies.get("_refcode_");
         this.state = {validAccountName: false, accountName: "", validPassword: false, registrar_account: null, loading: false, refcode};
         this.onFinishConfirm = this.onFinishConfirm.bind(this);
         this.onRefcodeChange = this.onRefcodeChange.bind(this);
@@ -160,11 +160,6 @@ class CreateAccount extends React.Component {
                                                   onChange={this.onAccountNameChange.bind(this)}
                                                   accountShouldNotExist={true}/>
 
-                                <div>
-                                    <label>Referral Code (optional)</label>
-                                    <input type="text" ref="refcode" value={this.state.refcode} onChange={this.onRefcodeChange}/>
-                                </div>
-
                                 {WalletDb.getWallet() ?
                                     <br/> :
                                     <PasswordInput ref="password" confirmation={true} onChange={this.onPasswordChange.bind(this)}/>
@@ -177,6 +172,10 @@ class CreateAccount extends React.Component {
                                                 onChange={this.onRegistrarAccountChange.bind(this)}/>
                                         </div>)
                                 }
+                                <div>
+                                    <label>Referral Code (optional)</label>
+                                    <input type="text" ref="refcode" value={this.state.refcode} onChange={this.onRefcodeChange} autoComplete="off"/>
+                                </div>
                                 {this.state.loading ?  <LoadingIndicator type="circle"/> :<button className={buttonClass}><Translate content="account.create_account" /></button>}
                                 <br/>
                                 <br/>
