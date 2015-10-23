@@ -66,7 +66,7 @@ class MarketCard extends React.Component {
                         <div onClick={this._onClick.bind(this, marketID)}>
                             <div style={{padding: "5px"}}>
                             </div>
-                            <div style={{color: "black"}} className="card-divider text-center">
+                            <div className="card-divider text-center info">
                                 <span>{marketName}</span>
                             </div>
                             <div className="card-section">
@@ -93,7 +93,7 @@ class MarketCard extends React.Component {
                                 </ul>
                             </div>
                         </div>
-                    <span style={{marginBottom: "5px", marginRight: "5px",zIndex:999, backgroundColor: "#6A6A6A"}} onClick={this.props.removeMarket} className="badge float-right">-</span>
+                    <span style={{marginBottom: "6px", marginRight: "6px", zIndex:999,  }} onClick={this.props.removeMarket} className="text alert float-right remove">–</span>
                 </div>
             </div>
         );
