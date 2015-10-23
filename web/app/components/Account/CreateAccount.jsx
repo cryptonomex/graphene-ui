@@ -15,7 +15,7 @@ import TransactionConfirmStore from "stores/TransactionConfirmStore";
 import LoadingIndicator from "../LoadingIndicator";
 import WalletActions from "actions/WalletActions";
 import Translate from "react-translate-component";
-import cookies from "cookies-js";
+import RefcodeInput from "../Forms/RefcodeInput";
 
 @connectToStores
 class CreateAccount extends React.Component {
@@ -32,11 +32,8 @@ class CreateAccount extends React.Component {
 
     constructor() {
         super();
-        let refcode_match = window.location.hash.match(/refcode\=([\w\d]+)/);
-        let refcode = refcode_match ? refcode_match[1] : cookies.get("_refcode_");
-        this.state = {validAccountName: false, accountName: "", validPassword: false, registrar_account: null, loading: false, refcode};
+        this.state = {validAccountName: false, accountName: "", validPassword: false, registrar_account: null, loading: false, hide_refcode: true};
         this.onFinishConfirm = this.onFinishConfirm.bind(this);
-        this.onRefcodeChange = this.onRefcodeChange.bind(this);
     }
 
     isValid() {
@@ -69,10 +66,10 @@ class CreateAccount extends React.Component {
     }
 
     createAccount(name) {
-        console.log("-- CreateAccount.createAccount refcode -->", this.state.refcode);
+        let refcode = this.refs.refcode ? this.refs.refcode.value() : null;
         WalletUnlockActions.unlock().then(() => {
             this.setState({loading: true});
-            AccountActions.createAccount(name, this.state.registrar_account, this.state.registrar_account, 0, this.state.refcode ? this.state.refcode.trim() : null).then(() => {
+            AccountActions.createAccount(name, this.state.registrar_account, this.state.registrar_account, 0, refcode).then(() => {
                 if(this.state.registrar_account) {
                     this.setState({loading: false});
                     TransactionConfirmStore.listen(this.onFinishConfirm);
@@ -125,8 +122,9 @@ class CreateAccount extends React.Component {
         this.setState({registrar_account});
     }
 
-    onRefcodeChange(e) {
-        this.setState({refcode: e.target.value});
+    showRefcodeInput(e) {
+        e.preventDefault();
+        this.setState({hide_refcode: false});
     }
 
     render() {
@@ -161,7 +159,7 @@ class CreateAccount extends React.Component {
                                                   accountShouldNotExist={true}/>
 
                                 {WalletDb.getWallet() ?
-                                    <br/> :
+                                    null :
                                     <PasswordInput ref="password" confirmation={true} onChange={this.onPasswordChange.bind(this)}/>
                                 }
                                 {
@@ -172,14 +170,19 @@ class CreateAccount extends React.Component {
                                                 onChange={this.onRegistrarAccountChange.bind(this)}/>
                                         </div>)
                                 }
-                                <div>
-                                    <label>Referral Code (optional)</label>
-                                    <input type="text" ref="refcode" value={this.state.refcode} onChange={this.onRefcodeChange} autoComplete="off"/>
-                                </div>
+                                {this.state.hide_refcode ? null :
+                                    <div>
+                                        <RefcodeInput ref="refcode" label="refcode.refcode_optional" expandable={true}/>
+                                        <br/>
+                                    </div>
+                                }
                                 {this.state.loading ?  <LoadingIndicator type="circle"/> :<button className={buttonClass}><Translate content="account.create_account" /></button>}
                                 <br/>
                                 <br/>
-                                <label><Link to="existing-account"><Translate content="account.existing_accounts" /></Link></label>
+                                <label className="inline"><Link to="existing-account"><Translate content="account.existing_accounts" /></Link></label>
+                                {this.state.hide_refcode ? <span>&nbsp; &bull; &nbsp;
+                                    <label className="inline"><a href onClick={this.showRefcodeInput.bind(this)}><Translate content="refcode.enter_refcode"/></a></label>
+                                </span> : null}
                             </form>
                         </div>
                     </div>

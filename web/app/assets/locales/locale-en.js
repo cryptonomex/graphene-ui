@@ -605,6 +605,8 @@
     },
     refcode: {
         claim: "Claim",
-        claim_refcode: "Claim Referral Code"
+        claim_refcode: "Claim Referral Code",
+        refcode_optional: "Referral Code (optional)",
+        enter_refcode: "Enter referral code"
     }
 };

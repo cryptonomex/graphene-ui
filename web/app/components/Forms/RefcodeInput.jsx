@@ -26,6 +26,14 @@ class RefcodeInput extends React.Component {
         this.state = {value, error: null};
     }
 
+    value() {
+        return this.state.value;
+    }
+
+    clear() {
+        this.setState({value: ""});
+    }
+
     onInputChanged(event) {
         let value = event.target.value.trim();
         this.setState({value, error: null});
@@ -68,10 +76,6 @@ class RefcodeInput extends React.Component {
         return true;
     }
 
-    clear() {
-        this.setState({value: ""});
-    }
-
     render() {
         let error = this.state.error;
         if (!error && !this.isValidRefcode(this.props.value)) error = "Not a valid referral code";
@@ -96,8 +100,7 @@ class RefcodeInput extends React.Component {
                     <span>{error}</span>
                 </div>
             </div>
-        )
-
+        );
     }
 
 }
