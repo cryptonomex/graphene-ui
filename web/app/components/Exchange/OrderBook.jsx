@@ -283,9 +283,9 @@ class OrderBook extends React.Component {
                             <tbody id="test" className="orderbook ps-container orderbook-top">
                                 {askRows}
                                 <tr onClick={this._centerView.bind(this)} key="top-header" className="top-header">
-                                    <td className="show-for-large" style={{textAlign: "right"}}><Translate content="exchange.value" /><br/><small>({baseSymbol})</small></td>
-                                    <td style={{textAlign: "right"}}><Translate content="transfer.amount" /><br/><small>({quoteSymbol})</small></td>
-                                    <td style={{textAlign: "right"}}><Translate content="exchange.price" /><br/><small>({baseSymbol}/{quoteSymbol})</small></td>
+                                    <td className="show-for-large" style={{textAlign: "right"}}><Translate content="exchange.value" /><br/><small>{baseSymbol}</small></td>
+                                    <td style={{textAlign: "right"}}><Translate content="transfer.amount" /><br/><small>{quoteSymbol}</small></td>
+                                    <td style={{textAlign: "right"}}><Translate content="exchange.price" /><br/><small>{baseSymbol}/{quoteSymbol}</small></td>
                                 </tr>
                                 <tr onClick={this._centerView.bind(this)} key="spread" className="spread-row" ref="centerRow">
                                     <td colSpan="3" className="text-center spread">
@@ -293,9 +293,9 @@ class OrderBook extends React.Component {
                                     </td>
                                 </tr>
                                 <tr onClick={this._centerView.bind(this)} key="bottom-header" className="bottom-header">
-                                    <td className="show-for-large" style={{textAlign: "right"}}><Translate content="exchange.value" /><br/><small>({baseSymbol})</small></td>
-                                    <td style={{textAlign: "right"}}><Translate content="transfer.amount" /><br/><small>({quoteSymbol})</small></td>
-                                    <td style={{textAlign: "right"}}><Translate content="exchange.price" /><br/><small>({baseSymbol}/{quoteSymbol})</small></td>
+                                    <td className="show-for-large" style={{textAlign: "right"}}><Translate content="exchange.value" /><br/><small>{baseSymbol}</small></td>
+                                    <td style={{textAlign: "right"}}><Translate content="transfer.amount" /><br/><small>{quoteSymbol}</small></td>
+                                    <td style={{textAlign: "right"}}><Translate content="exchange.price" /><br/><small>{baseSymbol}/{quoteSymbol}</small></td>
                                 </tr>
                                 {bidRows}
                             </tbody>

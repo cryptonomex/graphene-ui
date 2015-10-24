@@ -173,10 +173,10 @@ h1, h2, h3, h4, h5, h6 {
   .menu-bar {
   background-color: $button-bg-color;
   }
-  > li > a {
+  ul > li > a {
   background-color: $button-bg-color;
   &:hover {
-  background-color: lighten($button-bg-color, 80%);
+  background-color: lighten($button-bg-color, 40%);
   }
   }
 
@@ -253,7 +253,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .grp-menu-item button {
   &:hover, &:focus, &:active {
-    background-color: $primary-text-color !important;
+    background-color: lighten($button-bg-color, 4%) !important;
   }
 }
 
@@ -264,7 +264,6 @@ h1, h2, h3, h4, h5, h6 {
 // cards
 
 .card-section {
-  color: black;
   padding-left: 0.5rem;
   > ul {
     color: $primary-text-color;
@@ -282,7 +281,7 @@ h1, h2, h3, h4, h5, h6 {
   &:hover {
     background-color: lighten($panel-bg-color, 2%);
     > h4 {
-      background-color: lighten($light-panel-bg-color, 4%);
+      background-color: lighten($button-bg-color, 8%);
     }
   }
   a {
@@ -307,7 +306,7 @@ h1, h2, h3, h4, h5, h6 {
     color: $secondary-text-color;
   }
   > tbody > tr > td {
-    border-bottom: 1px solid lighten($secondary-text-color, 80%);
+    border-bottom: 1px dotted lighten($secondary-text-color, 80%);
   }
   &.table-hover > tbody > tr:hover > td, .table-hover > tbody > tr:hover > th {
     background-color: darken($bg-color, 4%);
