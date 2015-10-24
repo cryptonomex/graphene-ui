@@ -49,7 +49,7 @@ class MarketHistory extends React.Component {
                 if (this.state.flipped) {
                     price = utils.format_number(1 / price, paysAsset.get("precision"));
                 }
-                
+
                 return (
                     <tr key={order.order_id}>
                         <td>{receives}</td>
@@ -66,8 +66,8 @@ class MarketHistory extends React.Component {
                     <p style={{textTransform: "uppercase"}}><Translate content="exchange.market_history" /></p>
                     <thead>
                     <tr>
-                        <th style={{textAlign: "right"}}><Translate content="exchange.value" /><br/><small>({baseSymbol})</small></th>
-                        <th style={{textAlign: "right"}}><Translate content="transfer.amount" /><br/><small>({quoteSymbol})</small></th>
+                        <th style={{textAlign: "right"}}><Translate content="exchange.value" /><br/><small>{baseSymbol}</small></th>
+                        <th style={{textAlign: "right"}}><Translate content="transfer.amount" /><br/><small>{quoteSymbol}</small></th>
                         <th style={{textAlign: "right"}}><Translate content="exchange.price" /><br/><small>{this.state.flipped ? baseSymbol + "/" + quoteSymbol : quoteSymbol + "/" + baseSymbol}</small></th>
                     </tr>
                     </thead>

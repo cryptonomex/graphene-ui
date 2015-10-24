@@ -161,7 +161,7 @@ class OrderBook extends React.Component {
                 if (order.price_full < high / 5) {
                     return null;
                 }
-                return (horizontal ? 
+                return (horizontal ?
                     <OrderBookRowHorizontal
                         key={order.price_full}
                         order={order}
@@ -243,10 +243,10 @@ class OrderBook extends React.Component {
                             <table className="table order-table table-hover text-right">
                                 <thead>
                                     <tr key="top-header" className="top-header">
-                                        <th style={{textAlign: "right"}}><Translate content="exchange.price" /><br/><small>({baseSymbol}/{quoteSymbol})</small></th>
-                                        <th style={{textAlign: "right"}}><Translate content="transfer.amount" /><br/><small>({quoteSymbol})</small></th>
-                                        <th style={{textAlign: "right"}}><Translate content="exchange.value" /><br/><small>({baseSymbol})</small></th>
-                                        <th style={{textAlign: "right"}}><Translate content="exchange.total" /><br/><small>({baseSymbol})</small></th>
+                                        <th style={{textAlign: "right"}}><Translate content="exchange.price" /><br/><small>{baseSymbol}/{quoteSymbol}</small></th>
+                                        <th style={{textAlign: "right"}}><Translate content="transfer.amount" /><br/><small>{quoteSymbol}</small></th>
+                                        <th style={{textAlign: "right"}}><Translate content="exchange.value" /><br/><small>{baseSymbol}</small></th>
+                                        <th style={{textAlign: "right"}}><Translate content="exchange.total" /><br/><small>{baseSymbol}</small></th>
                                     </tr>
                                 </thead>
                                 <tbody id="test" className="orderbook orderbook-top">
@@ -262,10 +262,10 @@ class OrderBook extends React.Component {
                             <table className="table order-table table-hover text-right">
                                 <thead>
                                     <tr key="top-header" className="top-header">
-                                        <th style={{textAlign: "right"}}><Translate content="exchange.price" /><br/><small>({baseSymbol}/{quoteSymbol})</small></th>
-                                        <th style={{textAlign: "right"}}><Translate content="transfer.amount" /><br/><small>({quoteSymbol})</small></th>
-                                        <th style={{textAlign: "right"}}><Translate content="exchange.value" /><br/><small>({baseSymbol})</small></th>
-                                        <th style={{textAlign: "right"}}><Translate content="exchange.total" /><br/><small>({baseSymbol})</small></th>
+                                        <th style={{textAlign: "right"}}><Translate content="exchange.price" /><br/><small>{baseSymbol}/{quoteSymbol}</small></th>
+                                        <th style={{textAlign: "right"}}><Translate content="transfer.amount" /><br/><small>{quoteSymbol}</small></th>
+                                        <th style={{textAlign: "right"}}><Translate content="exchange.value" /><br/><small>{baseSymbol}</small></th>
+                                        <th style={{textAlign: "right"}}><Translate content="exchange.total" /><br/><small>{baseSymbol}</small></th>
                                     </tr>
                                 </thead>
                                 <tbody className="orderbook ps-container orderbook-bottom">

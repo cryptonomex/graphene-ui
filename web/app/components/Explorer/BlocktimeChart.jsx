@@ -34,7 +34,7 @@ class BlocktimeChart extends React.Component {
 
         let colors = blockTimes.map(entry => {
             if (entry[1] <= 5) {
-                return "#50D2C2";
+                return "#54B848";
             } else if (entry[1] <= 10) {
                 return "#A0D3E8";
             } else if (entry[1] <= 20) {
@@ -81,7 +81,7 @@ class BlocktimeChart extends React.Component {
                 {
                     name: "Block time",
                     data: blockTimes,
-                    color: "#50D2C2"
+                    color: "#54B848"
                 }
             ],
             xAxis: {

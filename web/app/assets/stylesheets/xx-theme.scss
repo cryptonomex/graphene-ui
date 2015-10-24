@@ -2,25 +2,25 @@
 
 // variables
 
-$light-text-color: #3F2E55;
-$dark-text-color: #3F2E55;
-$primary-text-color: #3F2E55;
+$light-text-color: #6A6A6A;
+$dark-text-color: #3F3F3F;
+$primary-text-color: #183D22;
 $secondary-text-color: darken($primary-text-color, 20%);
-$link-text-color: #aeabff;
-$error-text-color: #E3745B;
+$link-text-color: #54B848;
+$error-text-color: #f77f00;
 
-$bg-color: #FFF;
+$bg-color: #F1F1F1;
 $panel-bg-color: #e5e6e4;
 $light-panel-bg-color: #FFF;
 $super-light-panel-bg-color: darken($light-panel-bg-color, 1%);
-$button-bg-color: #8c88ff;
+$button-bg-color: #54B848;
 $secondary-button-bg-color: #999999;
 
 $alert-color: $error-text-color;
-$info-color: #A0A4B8;
-$success-color: #21D19F;
-$warning-color: #f35b92;
-$fee-color: #7f055e;
+$info-color: #87BCDE;
+$success-color: #54B848;
+$warning-color: #fcbf49;
+$fee-color: #522B47;
 
 // general
 
@@ -169,14 +169,21 @@ h1, h2, h3, h4, h5, h6 {
 
 
 .menu-group.primary {
-  background-color: darken($panel-bg-color, 20%);
+  background-color: $button-bg-color;
   .menu-bar {
-  background-color: darken($panel-bg-color, 20%);
+  background-color: $button-bg-color;
   }
+  > li > a {
+  background-color: $button-bg-color;
+  &:hover {
+  background-color: lighten($button-bg-color, 80%);
+  }
+  }
+
     .button {
-    background-color: darken($panel-bg-color, 20%);
+    background-color: lighten($button-bg-color, 20%);
     &:hover {
-    background-color: lighten($panel-bg-color, 80%);
+    background-color: lighten($button-bg-color, 80%);
     }
   }
 }
@@ -188,7 +195,7 @@ h1, h2, h3, h4, h5, h6 {
   .left-column {
     border-top-color: $bg-color;
     border-bottom-color: $bg-color;
-    background-color: lighten($panel-bg-color, 4%);
+    background-color: darken($panel-bg-color, 4%);
 
   }
 
@@ -246,7 +253,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .grp-menu-item button {
   &:hover, &:focus, &:active {
-    background-color: #4c4c4c !important;
+    background-color: $primary-text-color !important;
   }
 }
 
@@ -269,11 +276,11 @@ h1, h2, h3, h4, h5, h6 {
 
 
 
-.card {
+
+.card  {
   @include color($primary-text-color, $panel-bg-color);
-  background-color: $panel-bg-color;
   &:hover {
-    background-color: lighten($panel-bg-color, 4%);
+    background-color: lighten($panel-bg-color, 2%);
     > h4 {
       background-color: lighten($light-panel-bg-color, 4%);
     }
@@ -282,10 +289,14 @@ h1, h2, h3, h4, h5, h6 {
     color: $primary-text-color;
   }
   .card-divider {
-    @include color($primary-text-color, darken($light-panel-bg-color, 20%));
+    @include color($primary-text-color, darken($button-bg-color, 20%));
+    background-color: $button-bg-color;
   }
   > h4 {
-    background-color: darken($super-light-panel-bg-color, 4%);
+    background-color: $button-bg-color;
+    &:hover {
+      background-color: lighten($button-bg-color, 8%);
+    }
   }
 }
 

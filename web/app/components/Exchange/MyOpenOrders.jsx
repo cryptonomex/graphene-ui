@@ -33,9 +33,9 @@ class TableHeader extends React.Component {
             return (
                 <thead>
                     <tr>
-                        <th style={{textAlign: "right"}}><Translate content="exchange.price" /><br/>{baseSymbol ? <small>({baseSymbol}/{quoteSymbol})</small> : null}</th>
-                        <th style={{textAlign: "right"}}><Translate content="transfer.amount" /><br/>{baseSymbol ? <small>({quoteSymbol})</small> : null}</th>
-                        <th style={{textAlign: "right"}}><Translate content="exchange.value" /><br/>{baseSymbol ? <small>({baseSymbol})</small> : null}</th>
+                        <th style={{textAlign: "right"}}><Translate content="exchange.price" /><br/>{baseSymbol ? <small>{baseSymbol}/{quoteSymbol}</small> : null}</th>
+                        <th style={{textAlign: "right"}}><Translate content="transfer.amount" /><br/>{baseSymbol ? <small>({quoteSymbol}</small> : null}</th>
+                        <th style={{textAlign: "right"}}><Translate content="exchange.value" /><br/>{baseSymbol ? <small>{baseSymbol}</small> : null}</th>
                         <th style={{textAlign: "right"}}><Translate content="transaction.expiration" /></th>
                         <th style={{textAlign: "right"}}></th>
                     </tr>
