@@ -154,11 +154,10 @@ class MarketsActions {
                     Apis.instance().history_api().exec("get_market_history", [
                         base.get("id"), quote.get("id"), bucketSize, startDate.toISOString().slice(0, -5), endDate.toISOString().slice(0, -5)
                     ]),
-                    Apis.instance().history_api().exec("get_market_history_buckets", []),
-                    Apis.instance().history_api().exec("get_fill_order_history", [base.get("id"), quote.get("id")])
+                    Apis.instance().history_api().exec("get_market_history_buckets", [])
                 ])
                 .then((results) => {
-                    console.log("market subscription success:", results[0], results);
+                    // console.log("market subscription success:", results[0], results);
                     subs[subID] = true;
 
                     this.dispatch({
@@ -167,7 +166,6 @@ class MarketsActions {
                         settles: results[3],
                         price: results[4],
                         buckets: results[5],
-                        history: results[6],
                         market: subID,
                         base: base,
                         quote: quote,

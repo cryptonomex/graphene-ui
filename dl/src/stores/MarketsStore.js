@@ -24,7 +24,7 @@ class MarketsStore {
         this.activeMarketLimits = Immutable.Map();
         this.activeMarketCalls = Immutable.Map();
         this.activeMarketSettles = Immutable.Map();
-        this.activeMarketHistory = Immutable.OrderedSet();
+        this.activeMarketHistory = Immutable.Map();
         this.bids = [];
         this.asks = [];
         this.calls = [];
@@ -215,19 +215,11 @@ class MarketsStore {
             });
         }
 
-        if (result.history) {
-            result.history.forEach(order => {
-                // console.log("order:", order);
-                this.activeMarketHistory = this.activeMarketHistory.add(
-                    order
-                );
-            });
-        }
-
         if (result.fillOrders) {
             result.fillOrders.forEach(fill => {
-                console.log("fill:", fill);
-                this.activeMarketHistory = this.activeMarketHistory.add(
+                // console.log("fill:", fill);
+                this.activeMarketHistory = this.activeMarketHistory.set(
+                    fill[0][1].order_id,
                     fill[0][1]
                 );
             });

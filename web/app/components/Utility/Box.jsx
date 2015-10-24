@@ -6,7 +6,6 @@ import Translate from "react-translate-component";
 import LoadingIndicator from "../LoadingIndicator";
 import Accordion from 'react-foundation-apps/src/accordion';
 
-require("./Box.scss");
 
 class Box extends React.Component {
 
