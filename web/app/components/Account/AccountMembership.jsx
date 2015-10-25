@@ -74,6 +74,10 @@ class AccountMembership extends React.Component {
             <div className="grid-content">
                 <div className="content-block">
                     <h3><Translate content={membership}/> {expiration}</h3>
+                    { member_status=== "lifetime" || member_status === "annual" ? (
+                        <div className="medium-12"> <Translate content="account.member.your_referal_link" />: <span style={{borderBottom:"1px solid #444", padding:"5px 10px"}}>https://bitshares.dacplay.org?r={account.name}</span></div>
+                    ) : null }
+
                     { member_status=== "lifetime" ? null : (
                        <div>
                            <div className="large-6 medium-8">

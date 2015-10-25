@@ -61,7 +61,8 @@ module.exports = {
             upgrade_lifetime: "Lifetime Mietgliedschaft erwerben",
             subscribe: "Jährliche Mitgliedschaft erwerben",
             expires: "endet",
-            membership_expiration: "Ablauf der Mitgliedschaft"
+            membership_expiration: "Ablauf der Mitgliedschaft",
+            your_referal_link: "Your Referral Link"
         },
         user_issued_assets: {
             symbol: "Symbol",

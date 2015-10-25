@@ -47,7 +47,8 @@ module.exports = {
             unknown: "Inconnu",
             lifetime: "Membre à vie",
             basic: "Membre basique",
-            annual: "Abonné annuel"
+            annual: "Abonné annuel",
+            your_referal_link: "Your Referral Link"
         },
         user_issued_assets: {
             symbol: "Symbol",

@@ -7,7 +7,7 @@
         de: "Deutsch",
         es: "İspanyolca",
         tr: "Türkçe"
-        
+
     },
     header: {
         title: "Graphene Kullanıcı Arayüzü",
@@ -15,7 +15,7 @@
         dashboard: "Panel",
         explorer: "Araştır",
         exchange: "Borsa",
-        payments: "Ödemeler", 
+        payments: "Ödemeler",
         logout: "Çıkış",
         settings: "Ayarlar",
         current: "Kullanılan Hesap",
@@ -62,7 +62,8 @@
             upgrade_lifetime: "Ömürlük Abone ol",
             subscribe: "Yıllık Abone ol",
             expires: "bitiş tarihi",
-            membership_expiration: "Üyelik bitiş tarihi"
+            membership_expiration: "Üyelik bitiş tarihi",
+            your_referal_link: "Your Referral Link"
         },
         user_issued_assets: {
             symbol: "Sembol",
@@ -308,7 +309,7 @@
         blocks: {
             title: "Blokzinciri",
             globals: "Evrensel parametreler",
-            recent: "Son bloklar", 
+            recent: "Son bloklar",
             trx: "İşlem",
             block_times: "Blok süreleri",
             block_time: "Blok süresi",

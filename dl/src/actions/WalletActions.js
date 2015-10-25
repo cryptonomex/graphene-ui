@@ -13,6 +13,7 @@ import alt from "alt-instance"
 import iDB from "idb-instance"
 import Immutable from "immutable"
 import config from "chain/config"
+import cookies from "cookies-js"
 
 var application_api = new ApplicationApi()
 //var fetch = require('node-fetch')
@@ -86,7 +87,8 @@ class WalletActions {
             } catch(e) {}
             let port = (hostname === "localhost" || hostname.indexOf("192.168.") === 0) ? ":3000" : "";
             */
-            let create_account_promise = fetch("https://graphene.bitshares.org/api/v1/accounts", {
+            // let create_account_promise = fetch("https://graphene.bitshares.org/api/v1/accounts", {
+            let create_account_promise = fetch("http://localhost:3000/api/v1/accounts", {
                 method: 'post',
                 mode: 'cors',
                 headers: {
@@ -97,7 +99,8 @@ class WalletActions {
                     "account": {
                         "name": account_name,
                         "owner_key": owner_private.private_key.toPublicKey().toPublicKeyString(),
-                        "active_key": active_private.private_key.toPublicKey().toPublicKeyString()
+                        "active_key": active_private.private_key.toPublicKey().toPublicKeyString(),
+                        "referer": cookies.get("graphene_d_r") || ""
                     }
                 })
             }).then(r => r.json());

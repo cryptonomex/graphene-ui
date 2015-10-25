@@ -7,7 +7,7 @@ module.exports = {
         de: "Deutsch",
         es: "Español",
         tr: "Turkish"
-        
+
     },
     header: {
         title: "비트쉐어 2.0",
@@ -62,7 +62,8 @@ module.exports = {
             upgrade_lifetime: "평생회원권 구입",
             subscribe: "연간회원권 구입",
             expires: "만료됨",
-            membership_expiration: "멤버쉽 만료일"
+            membership_expiration: "멤버쉽 만료일",
+            your_referal_link: "Your Referral Link"
         },
         user_issued_assets: {
             symbol: "약자",
@@ -110,7 +111,7 @@ module.exports = {
             add_committee_label: "위원",
             add_witness_label: "증인",
             approve_worker: "Approve worker proposal",
-            reject_worker: "Reject worker proposal"            
+            reject_worker: "Reject worker proposal"
         },
         options: {
             num_witnesses: "선호 증인 수",
@@ -422,9 +423,8 @@ module.exports = {
             card: "카드뷰",
             table: "테이블뷰",
             rank: "순위",
-            last_confirmed: "마지막 승인블록",
-            missed: "누락 블록수"
-            
+            last_confirmed: "마지막 승인블럭",
+            missed: "미생성 블럭수"
         },
         committee_members: {
             title: "위원",

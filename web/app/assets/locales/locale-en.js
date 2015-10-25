@@ -7,7 +7,7 @@
         de: "Deutsch",
         es: "Español",
         tr: "Turkish"
-        
+
     },
     header: {
         title: "Graphene UI",
@@ -62,7 +62,8 @@
             upgrade_lifetime: "Buy Lifetime Subscribtion",
             subscribe: "Buy Annual Subscription",
             expires: "expires",
-            membership_expiration: "Membership Expiration"
+            membership_expiration: "Membership Expiration",
+            your_referal_link: "Your Referral Link"
         },
         user_issued_assets: {
             symbol: "Symbol",
