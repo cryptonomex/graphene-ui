@@ -96,7 +96,6 @@ class Transaction extends React.Component {
     render() {
         let {trx} = this.props;
         let info = null;
-        console.log("trx:", trx);
         info = [];
 
         let opCount = trx.operations.length;
