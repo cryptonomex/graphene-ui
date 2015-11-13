@@ -16,6 +16,7 @@ import LoadingIndicator from "../LoadingIndicator";
 import WalletActions from "actions/WalletActions";
 import Translate from "react-translate-component";
 import RefcodeInput from "../Forms/RefcodeInput";
+import {Motion, spring} from 'react-motion';
 
 @connectToStores
 class CreateAccount extends React.Component {
@@ -32,8 +33,26 @@ class CreateAccount extends React.Component {
 
     constructor() {
         super();
-        this.state = {validAccountName: false, accountName: "", validPassword: false, registrar_account: null, loading: false, hide_refcode: true};
+        this.state = {
+            validAccountName: false,
+            accountName: "",
+            validPassword: false,
+            registrar_account: null,
+            loading: false,
+            hide_refcode: true,
+            show_identicon: false
+        };
         this.onFinishConfirm = this.onFinishConfirm.bind(this);
+    }
+
+    shouldComponentUpdate(nextProps, nextState) {
+        return nextState.validAccountName !== this.state.validAccountName ||
+            nextState.accountName !== this.state.accountName ||
+            nextState.validPassword !== this.state.validPassword ||
+            nextState.registrar_account !== this.state.registrar_account ||
+            nextState.loading !== this.state.loading ||
+            nextState.hide_refcode !== this.state.hide_refcode ||
+            nextState.show_identicon !== this.state.show_identicon;
     }
 
     isValid() {
@@ -45,8 +64,11 @@ class CreateAccount extends React.Component {
     }
 
     onAccountNameChange(e) {
-        if(e.valid !== undefined) this.setState({ validAccountName: e.valid })
-        if(e.value !== undefined) this.setState({ accountName: e.value })
+        const state = {};
+        if(e.valid !== undefined) state.validAccountName = e.valid;
+        if(e.value !== undefined) {state.accountName = e.value; state.show_identicon = !!e.value; }
+        //if (!this.state.show_identicon) state.show_identicon = true;
+        this.setState(state);
     }
 
     onPasswordChange(e) {
@@ -127,33 +149,76 @@ class CreateAccount extends React.Component {
         this.setState({hide_refcode: false});
     }
 
+    showIdenticon() {
+
+    }
+
     render() {
         let my_accounts = AccountStore.getMyAccounts()
         let first_account = my_accounts.length === 0;
         let valid = this.isValid();
         let buttonClass = classNames("button", {disabled: !valid});
+
+        let header_items = [];
+        console.log("-- CreateAccount.render -->", this.state.show_identicon);
+        if (this.state.show_identicon) {
+            header_items.push(
+                <div className="form-group">
+                    <label><Translate content="account.identicon"/></label>
+                    <AccountImage account={this.state.validAccountName ? this.state.accountName : null}/>
+                </div>
+            );
+        } else {
+            header_items.push(
+                <div className="page-header">
+                    {
+                        first_account ?
+                            (<div>
+                                <h1><Translate content="account.welcome" /></h1>
+                                <h3><Translate content="account.please_create_account" /></h3>
+                            </div>) :
+                            (
+                                <h3><Translate content="account.create_account" /></h3>
+                            )
+                    }
+                </div>
+            );
+        }
+
+        //let header = (
+        //<Transition
+        //    component="div"
+        //    enter={{
+        //        opacity: 1,
+        //        translateY: spring(0, [400, 10])
+        //      }}
+        //    leave={{
+        //        opacity: 0,
+        //        translateY: 250
+        //      }}
+        //    >
+        //    {header_items}
+        //</Transition>);
+
         return (
             <div className="grid-block vertical">
                 <div className="grid-content">
                     <div className="content-block center-content">
-                        <div className="page-header">
-                        {
-                            first_account ?
-                                (<div>
-                                    <h1><Translate content="account.welcome" /></h1>
-                                    <h3><Translate content="account.please_create_account" /></h3>
-                                </div>) :
-                                (
-                                    <h3><Translate content="account.create_account" /></h3>
-                                )
-                        }
-                        </div>
+                        {/*header_items[0]*/}
+                        <Motion style={{x: spring(this.state.show_identicon ? 400 : 0)}}>
+                            {({x}) =>
+                                // children is a callback which should accept the current value of
+                                // `style`
+                                <div className="demo0">
+                                    <div className="demo0-block" style={{
+                WebkitTransform: `translate3d(${x}px, 0, 0)`,
+                transform: `translate3d(${x}px, 0, 0)`,
+              }} />
+                                </div>
+                            }
+                        </Motion>
                         <div style={{width: '21em'}}>
                             <form onSubmit={this.onSubmit.bind(this)} noValidate>
-                                <div className="form-group">
-                                    <label><Translate content="account.identicon" /></label>
-                                    <AccountImage account={this.state.validAccountName ? this.state.accountName:null}/>
-                                </div>
                                 <AccountNameInput ref="account_name" cheapNameOnly={first_account}
                                                   onChange={this.onAccountNameChange.bind(this)}
                                                   accountShouldNotExist={true}/>
