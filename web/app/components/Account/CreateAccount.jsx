@@ -16,7 +16,7 @@ import LoadingIndicator from "../LoadingIndicator";
 import WalletActions from "actions/WalletActions";
 import Translate from "react-translate-component";
 import RefcodeInput from "../Forms/RefcodeInput";
-import {Motion, spring} from 'react-motion';
+import {TransitionMotion, spring} from 'react-motion';
 
 @connectToStores
 class CreateAccount extends React.Component {
@@ -66,8 +66,8 @@ class CreateAccount extends React.Component {
     onAccountNameChange(e) {
         const state = {};
         if(e.valid !== undefined) state.validAccountName = e.valid;
-        if(e.value !== undefined) {state.accountName = e.value; state.show_identicon = !!e.value; }
-        //if (!this.state.show_identicon) state.show_identicon = true;
+        if(e.value !== undefined) state.accountName = e.value;
+        if (!this.state.show_identicon) state.show_identicon = true;
         this.setState(state);
     }
 
@@ -149,8 +149,29 @@ class CreateAccount extends React.Component {
         this.setState({hide_refcode: false});
     }
 
-    showIdenticon() {
+    getHeaderItemStyles() {
+        let config = {};
+        let d = {
+            opacity: spring(1),
+            top: spring(16)
+        };
+        if (this.state.show_identicon) config["icon"] = d;
+        else config["title"] = d;
+        return config;
+    }
 
+    headerItemWillEnter(key) {
+        return {
+            opacity: spring(0),
+            top: spring(-50)
+        };
+    }
+
+    headerItemWillLeave(key) {
+        return {
+            opacity: spring(0),
+            top: spring(-50)
+        };
     }
 
     render() {
@@ -159,64 +180,50 @@ class CreateAccount extends React.Component {
         let valid = this.isValid();
         let buttonClass = classNames("button", {disabled: !valid});
 
-        let header_items = [];
-        console.log("-- CreateAccount.render -->", this.state.show_identicon);
-        if (this.state.show_identicon) {
-            header_items.push(
-                <div className="form-group">
-                    <label><Translate content="account.identicon"/></label>
-                    <AccountImage account={this.state.validAccountName ? this.state.accountName : null}/>
-                </div>
-            );
-        } else {
-            header_items.push(
-                <div className="page-header">
-                    {
-                        first_account ?
-                            (<div>
-                                <h1><Translate content="account.welcome" /></h1>
-                                <h3><Translate content="account.please_create_account" /></h3>
-                            </div>) :
-                            (
-                                <h3><Translate content="account.create_account" /></h3>
-                            )
+        let header_items = {
+            icon: <div className="form-group">
+                <label><Translate content="account.identicon"/></label>
+                <AccountImage account={this.state.validAccountName ? this.state.accountName : null}/>
+            </div>,
+            title: first_account ?
+                    (<div>
+                        <h1><Translate content="account.welcome"/></h1>
+                        <h3><Translate content="account.please_create_account"/></h3>
+                        <hr/>
+                    </div>) :
+                    (
+                        <div>
+                            <h1><Translate content="account.create_account"/></h1>
+                            <hr/>
+                        </div>
+                    )
+        };
+
+        const header = <TransitionMotion
+            styles={this.getHeaderItemStyles()}
+            willEnter={this.headerItemWillEnter}
+            willLeave={this.headerItemWillLeave}>
+            {config =>
+                <div>
+                    {Object.keys(config).map(key =>
+                        {
+                            let style = config[key];
+                            return <div style={{position: "absolute", left: 0, right: 0, ...style}}>
+                                <div className="center-content">{header_items[key]}</div>
+                            </div>;
+                        })
                     }
                 </div>
-            );
-        }
-
-        //let header = (
-        //<Transition
-        //    component="div"
-        //    enter={{
-        //        opacity: 1,
-        //        translateY: spring(0, [400, 10])
-        //      }}
-        //    leave={{
-        //        opacity: 0,
-        //        translateY: 250
-        //      }}
-        //    >
-        //    {header_items}
-        //</Transition>);
+            }
+        </TransitionMotion>
 
         return (
             <div className="grid-block vertical">
                 <div className="grid-content">
+                    <div className="create-account-header">
+                        {header}
+                    </div>
                     <div className="content-block center-content">
-                        {/*header_items[0]*/}
-                        <Motion style={{x: spring(this.state.show_identicon ? 400 : 0)}}>
-                            {({x}) =>
-                                // children is a callback which should accept the current value of
-                                // `style`
-                                <div className="demo0">
-                                    <div className="demo0-block" style={{
-                WebkitTransform: `translate3d(${x}px, 0, 0)`,
-                transform: `translate3d(${x}px, 0, 0)`,
-              }} />
-                                </div>
-                            }
-                        </Motion>
                         <div style={{width: '21em'}}>
                             <form onSubmit={this.onSubmit.bind(this)} noValidate>
                                 <AccountNameInput ref="account_name" cheapNameOnly={first_account}
