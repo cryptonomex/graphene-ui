@@ -223,6 +223,8 @@ class Settings extends React.Component {
                                     {...this.state}
                                 />);                   
                         }).toArray()}
+                        <Link to="wallet/automatic-backups"><div className="button outline">
+                            <Translate content="wallet.automatic_backups" /></div></Link>
                         <Link to="wallet"><div className="button outline">
                             <Translate content="wallet.console" /></div></Link>
                     </div>

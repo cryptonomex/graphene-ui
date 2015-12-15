@@ -50,6 +50,7 @@ import ReactTooltip from "react-tooltip";
 import Invoice from "./components/Transfer/Invoice";
 import ChainStore from "api/ChainStore";
 import Backup, {BackupCreate, BackupVerify, BackupRestore} from "./components/Wallet/Backup";
+import AutomaticBackups from "./components/Wallet/AutomaticBackups"
 import WalletChangePassword from "./components/Wallet/WalletChangePassword"
 import WalletManagerStore from "stores/WalletManagerStore";
 import WalletManager, {WalletOptions, ChangeActiveWallet, WalletDelete} from "./components/Wallet/WalletManager";
@@ -254,6 +255,7 @@ let routes = (
             <Route name="wmc-backup-create" path="backup/create" component={BackupCreate}/>
             <Route name="wmc-backup-brainkey" path="backup/brainkey" component={BackupBrainkey}/>
             <Route name="wmc-balance-claims" path="balance-claims" component={BalanceClaimActive}/>
+            <Route name="automatic-backups" path="automatic-backups" component={AutomaticBackups}/>
         </Route>
         <Route name="create-wallet" path="create-wallet" component={WalletCreate}/>
         <Route name="console" path="console" component={Console}/>

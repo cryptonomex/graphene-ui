@@ -265,6 +265,7 @@ class Create extends BackupBaseComponent {
             <div onClick={this.onCreateBackup.bind(this)}
                 className={cname("button success", {disabled: !ready})}>
                 <Translate content="wallet.create_backup_of" name={this.props.wallet.current_wallet} /></div>
+            <br/>
             <LastBackupDate/>
         </div>
     }
