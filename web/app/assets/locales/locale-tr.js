@@ -467,7 +467,7 @@
             witness: "Tanık",
             count: "İşlem Sayısı",
             date: "Tarih",
-            time: "Süre",
+            time: "Zaman",
             previous: "Bir önceki",
             previous_secret: "Bir önceki gizli",
             next_secret: "Bir sonraki gizli hash",
