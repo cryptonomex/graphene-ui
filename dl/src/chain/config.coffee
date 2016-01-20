@@ -1,13 +1,13 @@
 module.exports = _this =
-    core_asset: "CORE"
-    address_prefix: "GPH"
+    core_asset: "TEST"
+    address_prefix: "TEST"
     expire_in_secs: 15
     expire_in_secs_proposal: 24 * 60 * 60
     depositWithdrawDefaultActiveTab: 0
     networks:
         BitShares:
-            core_asset: "BTS"
-            address_prefix: "BTS"
+            core_asset: "TEST"
+            address_prefix: "TEST"
             chain_id: "4018d7844c78f6a6c41c6a552b898022310fc5dec06da467ee7905a8dad512c8"
         Muse:
             core_asset: "MUSE"
