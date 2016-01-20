@@ -25,7 +25,7 @@ class Apis {
             }
         } catch (e) {}
         if (!connection_string) connection_string = SettingsStore.getSetting("connection");
-        //connection_string = "ws://localhost:8090";
+        connection_string = "ws://testnet.bitshares.eu:11011";
         console.log(`connecting to ${connection_string}`);
         this.ws_rpc = new WebSocketRpc(connection_string, this.update_rpc_connection_status_callback);
         this.init_promise = this.ws_rpc.login(rpc_user, rpc_password).then(() => {
