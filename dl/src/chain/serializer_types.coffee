@@ -398,6 +398,46 @@ Types.optional = (st_operation)->
                 result_object = __optional: result_object
         result_object
 
+Types.extension = (_st_operations)->
+    st_operations: _st_operations
+    fromByteBuffer:(b)->
+        count = b.readVarint32()
+        result = {}
+        while count > 0
+            type_id = b.readVarint32()
+            st_operation = @st_operations[type_id]
+            if config.hex_dump
+                console.error("extension id 0x#{type_id.toString(16)} (#{type_id})")
+            v.required st_operation, "operation #{type_id}"
+            result[, st_operation.fromByteBuffer(b)]
+            count -= 1
+        result
+    appendByteBuffer:(b, object)->
+        v.required object
+        # grab all the fields
+        count = 0
+        for [field_name,field_type],field_id in st_operations
+            if field_name of object
+                count += 1
+        b.writeVarint32 count
+        for [field_name,field_type],field_id in st_operations
+            if field_name of object
+                b.writeVarint32 field_id
+                field_type.appendByteBuffer b, object[field_name]
+        return
+    fromObject:(object)->
+        result = {}
+        for [field_name,field_type],field_id in st_operations
+            if field_name of object
+                result[field_name] = fromObject object[field_name]
+        result
+    toObject:(object, debug = {})->
+        result = {}
+        for [field_name,field_type],field_id in st_operations
+            if field_name of object
+                result[field_name] = toObject object[field_name], debug
+        result
+
 Types.static_variant = (_st_operations)->
     st_operations: _st_operations
     fromByteBuffer:(b)->
