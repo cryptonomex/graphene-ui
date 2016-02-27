@@ -224,7 +224,13 @@ class AccountDepositWithdraw extends React.Component {
 
         return (
 		<div className="grid-content">
-			<Tabs setting="depositWithdrawSettingsTab" defaultActiveTab={config.depositWithdrawDefaultActiveTab}>
+            <div className="exchange-bordered">
+			<Tabs
+                setting="depositWithdrawSettingsTab"
+                tabsClass="bordered-header"
+                defaultActiveTab={config.depositWithdrawDefaultActiveTab}
+                contentClass="grid-content"
+            >
 
                 <Tabs.Tab title="BlockTrades">
                     <div className="content-block">
@@ -333,7 +339,7 @@ class AccountDepositWithdraw extends React.Component {
                                 url="https://api.blocktrades.us/v2"
                                 issuer_account="blocktrades"
                                 account={this.props.account}
-                                deposit_coin_type="peercoin"
+                                deposit_coin_type="ppc"
                                 deposit_asset_name="Peercoin"
                                 deposit_asset="PPC"
                                 deposit_wallet_type="peercoin"
@@ -731,6 +737,7 @@ class AccountDepositWithdraw extends React.Component {
                 </Tabs.Tab>
 
             </Tabs>
+            </div>
 		</div>
         )
     }

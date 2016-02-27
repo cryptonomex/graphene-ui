@@ -690,8 +690,8 @@
         my_asks: "My asks",
         my_orders: "My orders",
         settle_orders: "Settle orders",
-        asks: "Asks",
-        bids: "Bids",
+        asks: "Sell orders",
+        bids: "Buy orders",
         no_data: "No data",
         time: "Time interval",
         borrow: "Borrow",
@@ -701,7 +701,8 @@
         show_bids: "Show all bids",
         show_asks: "Show all asks",
         hide: "Hide",
-        short: "Short"
+        short: "Short",
+        others: "Others"
     },
     fees: {
      title: "Fee Schedule"
