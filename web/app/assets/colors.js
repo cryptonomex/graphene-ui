@@ -23,7 +23,7 @@ module.exports = {
         callColor: "#BBBF2B",
         positiveColor: "#6EC105",
         negativeColor: "#E1424A",
-        primaryText: "#3F2E55",
-        lightTextColor: "#3F2E55"
+        primaryText: "#43484D",
+        lightTextColor: "#43484D"
     }
 }

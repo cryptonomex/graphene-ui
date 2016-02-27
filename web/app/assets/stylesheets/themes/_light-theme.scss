@@ -2,34 +2,35 @@
 
 // variables
 
-$light-text-color: #3F2E55;
-$dark-text-color: #3F2E55;
-$primary-text-color: #3F2E55;
-$secondary-text-color: darken($primary-text-color, 20%);
-$link-text-color: #aeabff;
+$light-text-color: #43484D;
+$dark-text-color: #43484D;
+$primary-text-color: #43484D;
+$secondary-text-color: lighten($primary-text-color, 20%);
+$link-text-color: #358ED7;
 $error-text-color: #E3745B;
 
 $bg-color: #FFF;
 $panel-bg-color: #e5e6e4;
 $light-panel-bg-color: #FFF;
 $super-light-panel-bg-color: darken($light-panel-bg-color, 1%);
-$button-bg-color: #8c88ff;
-$secondary-button-bg-color: #999999;
+$button-bg-color: #E1E8EE;
+$secondary-button-bg-color: #86939E;
 
 $alert-color: $error-text-color;
 $info-color: #A0A4B8;
-$success-color: #21D19F;
+$success-color: #7DC855;
 $warning-color: #f35b92;
-$fee-color: #7f055e;
+$fee-color: #86939E;
 
 // Exchange colors
-$bid-color: #258A14;
-$ask-color: #E3745B;
+$bid-color: #7DC855;
+$ask-color: #F7A696;
 $call-color: #BBBF2B;
-$positive-color: #6EC105;
-$negative-color: #E1424A;
-$row-accent-color: #FFFFFF;
+$positive-color: #7DC855;
+$negative-color: #F7A696;
+$row-accent-color: lighten($panel-bg-color, 4%);
 $header-color: #DCDCDC;
+
 
 .lightTheme {
   @include theme(
@@ -59,3 +60,100 @@ $header-color: #DCDCDC;
   );
 }
 
+
+// custom changes made by @cass
+
+.lightTheme {
+
+  .button.outline,
+  button {
+      border-radius: 2px;
+    }
+
+  .bottom-stats label {
+    border: 0px;
+  }
+
+  div.exchange-content-header {
+    border-bottom: 1px solid lighten($secondary-button-bg-color, 4%);
+  }
+
+
+
+  table > tbody > tr {
+    opacity: 75%;
+    &:hover {
+    opacity: 75%;
+    }
+  }
+
+  table > tbody > tr.activeMarket,
+  table > tbody > tr.activeMarket:hover {
+  color: darken($dark-text-color, 3%);
+  background-color: lighten($panel-bg-color, 2%);
+  }
+
+
+
+  .table > tbody > tr > td {
+    border-bottom: 1px solid lighten($secondary-button-bg-color, 10%);
+  }
+
+  .table > thead > tr > th {
+    border-color: 1px solid lighten($secondary-button-bg-color, 10%);
+    background: #FFF;
+    display:none;
+  }
+
+  .orderbook-showall {
+    border-top: 1px solid lighten($secondary-button-bg-color, 4%);
+  }
+
+
+
+
+
+  .gold-star > svg > path {
+    fill: #838CC7;
+  }
+
+  .grey-star > svg > path {
+      fill: #DCDCDC;
+    }
+
+
+
+  .label,
+  .label.warning,
+  .label.success,
+  .label.info,
+  .label.cancel,
+  .label.alert {
+    border-radius: 2px;
+    background-color: #FFF;
+  }
+
+}
+
+
+.bid-total span
+ {
+  color: $light-text-color;
+  font-weight: 400;
+  font-size: 0.75rem;
+  letter-spacing: 0.025rem;
+}
+
+.ask-total span
+ {
+  color: $light-text-color;
+  font-weight: 400;
+  font-size: 0.75rem;
+  letter-spacing: 0.025rem;
+
+}
+
+
+
+
+// custom changes made by @cass
