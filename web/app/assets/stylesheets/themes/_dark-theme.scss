@@ -1,23 +1,22 @@
 @import "theme-template";
-
 // variables
 
 $light-text-color: #fff;
 $dark-text-color: #444;
 $primary-text-color: #e0e0e0;
 $secondary-text-color: darken($primary-text-color, 20%);
-$link-text-color: #aeabff;
+$link-text-color: #00abea;
 $error-text-color: #E3745B;
 
-$bg-color: #2a2a2a;
-$panel-bg-color: #3f3f3f;
+$bg-color: #212531;
+$panel-bg-color: #393F4F;
 $light-panel-bg-color: #6a6a6a;
 $super-light-panel-bg-color: lighten($light-panel-bg-color, 8%);
-$button-bg-color: #8c88ff;
+$button-bg-color: #00abea;
 $secondary-button-bg-color: #999999;
 
 $alert-color: $error-text-color;
-$info-color: #A0D3E8;
+$info-color: #84F766;
 $success-color: #50D2C2;
 $warning-color: #FCAB53;
 $fee-color: $secondary-text-color;
@@ -26,10 +25,10 @@ $fee-color: $secondary-text-color;
 $bid-color: #50D2C2;
 $ask-color: #E3745B;
 $call-color: #BBBF2B;
-$positive-color: #6EC105;
+$positive-color: #84F766;
 $negative-color: #E1424A;
-$row-accent-color: #3C3C3C;
-$header-color: #484848;
+$row-accent-color: #393F4F;
+$header-color: #393F4F;
 
 .darkTheme {
   @include theme(
@@ -57,4 +56,111 @@ $header-color: #484848;
     $row-accent-color,
     $header-color
   );
+}
+
+// custom changes made by @cass
+.body {
+    font: 80%/1.418 "Roboto";
+
+}
+
+
+.darkTheme {
+
+  .header {
+  box-shadow: 0px 6px 42px rgba(0, 0, 0, 0.49);
+  z-index: 999;
+  }
+
+  .grid-block[style] {
+   border: 0px solid $row-accent-color;
+}
+
+  .button.outline,
+  button {
+      border-radius: 2px;
+    }
+
+  .bottom-stats label {
+    border: 0px;
+  }
+
+  div.exchange-content-header {
+    border-bottom: 1px solid darken($secondary-button-bg-color, 40%);
+  }
+
+
+
+  table > tbody > tr {
+    opacity: 75%;
+    &:hover {
+    opacity: 75%;
+    }
+  }
+
+  table > tbody > tr.activeMarket,
+  table > tbody > tr.activeMarket:hover {
+  color: darken($dark-text-color, 3%);
+  background-color: lighten($panel-bg-color, 2%);
+  }
+
+
+
+  .table > tbody > tr > td {
+    border-bottom: 1px solid darken($secondary-button-bg-color, 40%);
+  }
+
+  .table > thead > tr > th {
+    border-color: 1px solid darken($secondary-button-bg-color, 40%);
+    background: #FFF;
+    display:none;
+  }
+
+  .orderbook-showall {
+    border-top: 1px solid darken($secondary-button-bg-color, 40%);
+  }
+
+
+  .mymarkets-group-header
+
+
+  .gold-star > svg > path {
+    fill: #838CC7;
+  }
+
+  .grey-star > svg > path {
+      fill: #DCDCDC;
+    }
+
+
+
+  .label,
+  .label.warning,
+  .label.success,
+  .label.info,
+  .label.cancel,
+  .label.alert {
+    border-radius: 2px;
+    background-color: $panel-bg-color;
+  }
+
+}
+
+
+
+.bid-total span
+ {
+  color: $light-text-color;
+  font-weight: 400;
+  font-size: 0.75rem;
+  letter-spacing: 0.025rem;
+}
+
+.ask-total span
+ {
+  color: $light-text-color;
+  font-weight: 400;
+  font-size: 0.75rem;
+  letter-spacing: 0.025rem;
+
 }

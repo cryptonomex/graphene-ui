@@ -96,11 +96,11 @@ $header-color: #DCDCDC;
 
 
   .table > tbody > tr > td {
-    border-bottom: 1px solid lighten($secondary-button-bg-color, 10%);
+    border-bottom: 1px dotted lighten($secondary-button-bg-color, 10%);
   }
 
   .table > thead > tr > th {
-    border-color: 1px solid lighten($secondary-button-bg-color, 10%);
+    border-color: 1px dotted lighten($secondary-button-bg-color, 10%);
     background: #FFF;
     display:none;
   }
@@ -110,7 +110,7 @@ $header-color: #DCDCDC;
   }
 
 
-
+  .mymarkets-group-header
 
 
   .gold-star > svg > path {
@@ -152,8 +152,3 @@ $header-color: #DCDCDC;
   letter-spacing: 0.025rem;
 
 }
-
-
-
-
-// custom changes made by @cass
