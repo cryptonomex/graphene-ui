@@ -22,12 +22,12 @@ $warning-color: #FCAB53;
 $fee-color: $secondary-text-color;
 
 // Exchange colors
-$bid-color: #6EC105;
-$ask-color: #FD6B38;
+$bid-color: lighten(#6EC105, 30%);
+$ask-color: lighten(#FD6B38, 20%);
 $call-color: #FFCC00;
-$positive-color: #6EC105;
+$positive-color: lighten(#6EC105, 50%);
 $negative-color: #E1424A;
-$row-accent-color: #212531;
+$row-accent-color: #16242C;
 $header-color: #2C3240;
 
 .darkTheme {
@@ -69,6 +69,11 @@ $header-color: #2C3240;
 
   .grid-block[style] {
      border: 0px solid $row-accent-color;
+
+  table td[style] {
+
+  }
+
 }
 
   .button.outline,
@@ -112,7 +117,7 @@ $header-color: #2C3240;
 
 
   .gold-star > svg > path {
-    fill: #FFF;
+    fill: #e0e0e0;
   }
 
   .grey-star > svg > path {
@@ -129,27 +134,5 @@ $header-color: #2C3240;
   .label.alert {
     border-radius: 2px;
   }
-
-}
-
-td.info {
-  display: none;
-}
-
-
-.bid-total span
- {
-  color: $light-text-color;
-  font-weight: 400;
-  font-size: 0.75rem;
-  letter-spacing: 0.025rem;
-}
-
-.ask-total span
- {
-  color: $light-text-color;
-  font-weight: 400;
-  font-size: 0.75rem;
-  letter-spacing: 0.025rem;
 
 }
