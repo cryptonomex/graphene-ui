@@ -1,4 +1,5 @@
 @import "theme-template";
+
 // variables
 
 $light-text-color: #fff;
@@ -22,13 +23,16 @@ $warning-color: #FCAB53;
 $fee-color: $secondary-text-color;
 
 // Exchange colors
-$bid-color: lighten(#6EC105, 30%);
-$ask-color: lighten(#FD6B38, 20%);
+$bid-color: rgba(154, 198, 53, 0.8);
+$ask-color: rgba(227, 116, 91, 0.8);
 $call-color: #FFCC00;
 $positive-color: lighten(#6EC105, 50%);
 $negative-color: #E1424A;
 $row-accent-color: #16242C;
 $header-color: #2C3240;
+
+
+
 
 .darkTheme {
   @include theme(
@@ -59,10 +63,13 @@ $header-color: #2C3240;
 }
 
 // custom changes made by @cass
-.body {
-    font: 80%/1.618 "Roboto";
 
-}
+
+  body {
+      font: 80%/1.618 "Source Sans Pro";
+      line-height: normal;
+
+  }
 
 
 .darkTheme {

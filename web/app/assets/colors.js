@@ -13,15 +13,15 @@ module.exports = {
         lightTextColor: "#fff"
     },
     darkTheme: {
-        bidColor: "#6EC105",
-        bidFillColor: "rgba(80, 210, 194, 0.5)",
+        bidColor: "#8EC919",
+        bidFillColor: "rgba(154, 198, 53, 0.29)",
         askColor: "#F36638",
-        askFillColor: "rgba(227, 116, 91, 0.5)",
+        askFillColor: "rgba(243, 102, 56, 0.29)",
         callColor: "#FFCC00",
         settleColor: "rgba(125, 134, 214, 1)",
-        settleFillColor: "rgba(125, 134, 214, 0.5)",
-        positiveColor: "#6EC105",
-        negativeColor: "#F36638",
+        settleFillColor: "rgba(125, 134, 214, 0.49)",
+        positiveColor: "rgba(154, 198, 53, 0.49)",
+        negativeColor: "rgba(243, 102, 56, 0.49)",
         primaryText: "#e0e0e0",
         lightTextColor: "#fff"
     },
