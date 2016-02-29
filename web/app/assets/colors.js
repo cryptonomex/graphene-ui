@@ -13,19 +13,13 @@ module.exports = {
         lightTextColor: "#fff"
     },
     darkTheme: {
-<<<<<<< HEAD
         bidColor: "#6EC105",
-        askColor: "#F36638",
-        callColor: "#FFCC00",
-=======
-        bidColor: "#50D2C2",
         bidFillColor: "rgba(80, 210, 194, 0.5)",
-        askColor: "#E3745B",
+        askColor: "#F36638",
         askFillColor: "rgba(227, 116, 91, 0.5)",
-        callColor: "#BBBF2B",
+        callColor: "#FFCC00",
         settleColor: "rgba(125, 134, 214, 1)",
         settleFillColor: "rgba(125, 134, 214, 0.5)",
->>>>>>> master
         positiveColor: "#6EC105",
         negativeColor: "#F36638",
         primaryText: "#e0e0e0",
