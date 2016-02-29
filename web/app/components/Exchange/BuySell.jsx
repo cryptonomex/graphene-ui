@@ -35,7 +35,8 @@ class BuySell extends React.Component {
                 nextProps.className !== this.props.className ||
                 nextProps.fee !== this.props.fee ||
                 nextProps.isPredictionMarket !== this.props.isPredictionMarket ||
-                nextProps.feeAsset !== this.props.feeAsset
+                nextProps.feeAsset !== this.props.feeAsset ||
+                nextProps.isOpen !== this.props.isOpen
             );
     }
 
@@ -57,6 +58,8 @@ class BuySell extends React.Component {
             balancePrecision, quotePrecision, currentPrice, currentPriceObject,
             feeAsset, feeAssets} = this.props;
         let amount, price, total;
+
+        let caret = this.props.isOpen ? <span>&#9660;</span> : <span>&#9650;</span>;
 
         if (this.props.amount) amount = this.props.amount;
         if (this.props.price) price = this.props.price;
@@ -110,7 +113,9 @@ class BuySell extends React.Component {
                     <div className={"exchange-content-header " + type}>
                         <span>{`${buttonText} ${quote.get("symbol")}`}</span>
                         {this.props.onFlip ? <span onClick={this.props.onFlip} style={{cursor: "pointer", fontSize: "1rem"}}>  &#8646;</span> : null}
+                        <div onClick={this.props.onToggleOpen} className="float-right clickable">{caret}</div>
                     </div>
+                    {!this.props.isOpen ? null : (
                     <form className="order-form" noValidate>
                         <div className="grid-block vertical no-overflow no-padding">
 
@@ -201,11 +206,12 @@ class BuySell extends React.Component {
                                         </div>)
                                     }
 
-                                    {disabledText && isPredictionMarket ?
-                                        (<div className="float-right" data-tip={disabledText} data-place="right" data-type="light">
+                                {/* SHORT button */}
+                                    {disabledText && isPredictionMarket ? (
+                                        <div style={{paddingRight: 10}} className="float-right" data-tip={disabledText} data-place="right" data-type="light">
                                             <input style={{margin: 0}} className={buttonClass} type="submit" onClick={onSubmit.bind(this, false)} value={forceSellText} />
-                                        </div>) : isPredictionMarket ?
-                                        (<div className="float-right" data-tip={""}>
+                                        </div>) : isPredictionMarket ? (
+                                        <div style={{paddingRight: 10}} className="float-right" data-tip={""}>
                                             <input style={{margin: 0}} className={buttonClass} type="submit" onClick={onSubmit.bind(this, false)} value={forceSellText} />
                                         </div>) : null
                                     }
@@ -213,7 +219,7 @@ class BuySell extends React.Component {
                                   </div>
                             </div>
 
-                    </form>
+                    </form>)}
                 </div>
             </div>
         );
