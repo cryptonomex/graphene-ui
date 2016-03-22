@@ -393,14 +393,16 @@ class AccountStore extends BaseStore {
 
     getAccountType(full_name) {
         if (!full_name) return null;
-        const name = full_name[0] === "~" ? full_name.slice(1) : full_name;
         let res = null;
-        if (this.state.privateContacts.has(name)) res = "Private Contact";
-        else if (this.state.privateAccounts.has(name)) res = "Private Account";
-        else if (this.state.myAccounts.has(name)) res = "My Account";
-        else if (this.state.linkedAccounts.has(name)) res = "Linked Account";
-        else if (full_name[0] === "~") return null;
-        else return "Public Account";
+        if (full_name[0] === "~") {
+            const name = full_name.slice(1);
+            if (this.state.privateContacts.has(name)) res = "Private Contact";
+            else if (this.state.privateAccounts.has(name)) res = "Private Account";
+        } else {
+            if (this.state.myAccounts.has(full_name)) res = "My Account";
+            else if (this.state.linkedAccounts.has(full_name)) res = "Linked Account";
+            else res = "Public Account";
+        }
         return res;
     }
 
