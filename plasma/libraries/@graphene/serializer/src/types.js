@@ -680,6 +680,16 @@ Types.static_variant = function(_st_operations){
             type_id,
             st_operation.toObject(object[1], debug)
         ];
+    },
+    compare(a, b) {
+        let hex = object =>{
+            let type_id = object[0];
+            let st_operation = this.st_operations[type_id];
+            // use_default if for an undefined fee (use 0 instead of throwing an error)
+            let o = st_operation.toObject(object[1], { use_default: true})
+            return st_operation.toHex(o)
+        }
+        return strCmp(hex(a), hex(b))
     }
     };
 };
@@ -703,7 +713,7 @@ Types.map = function(key_st_operation, value_st_operation){
                 dup_map[o[0]] = true;
             }
         }
-        return sortOperation(array, key_st_operation);
+        return sortOperation(array, key_st_operation, el => el[0]);
     },
 
     fromByteBuffer(b){
@@ -765,23 +775,18 @@ Types.map = function(key_st_operation, value_st_operation){
 };
 
 Types.public_key = {
-    toPublic(object){
-        if (object.resolve !== undefined) { object = object.resolve; }
-        return object == null ? object :
-            object.Q ? object : PublicKey.fromStringOrThrow(object)
-    },
     fromByteBuffer(b){
         return fp.public_key(b);
     },
     appendByteBuffer(b, object){
         v.required(object);
-        fp.public_key(b, Types.public_key.toPublic(object));
+        fp.public_key(b, toPublic(object));
         return;
     },
     fromObject(object){
         v.required(object);
         if (object.Q) { return object; }
-        return Types.public_key.toPublic(object);
+        return toPublic(object);
     },
     toObject(object, debug = {}){
         if (debug.use_default && object === undefined) {
@@ -791,7 +796,10 @@ Types.public_key = {
         return object.toString()
     },
     compare(a, b) {
-        return strCmp(a.toAddressString(), b.toAddressString())
+        return strCmp(
+            toPublic(a).toAddressString(),
+            toPublic(b).toAddressString()
+        )
     }
 };
 
@@ -818,18 +826,21 @@ Types.address =
         return Types.address._to_address(object).toString();
     },
     compare(a, b) {
-        // sort decending
-        return -1 * strCmp(a.toString(), b.toString())
+        return strCmp(a.toString(), b.toString())
     }
 }
 
 let strCmp = (a, b) => a > b ? 1 : a < b ? -1 : 0
 let firstEl = el => Array.isArray(el) ? el[0] : el
-let sortOperation = (array, st_operation) => st_operation.compare ?
-    array.sort((a,b)=> st_operation.compare(firstEl(a), firstEl(b))) : // custom compare operation
+let sortOperation = (array, st_operation, el = v => v) => st_operation.compare ?
+    array.sort((a,b)=> st_operation.compare(el(a), el(b))) : // custom compare operation
     array.sort((a,b)=>
-        typeof firstEl(a) === "number" && typeof firstEl(b) === "number" ? firstEl(a) - firstEl(b) :
+        typeof el(a) === "number" && typeof el(b) === "number" ? el(a) - el(b) :
         // A binary string compare does not work. Performanance is very good so HEX is used..  localeCompare is another option.
-        Buffer.isBuffer(firstEl(a)) && Buffer.isBuffer(firstEl(b)) ? strCmp(firstEl(a).toString("hex"), firstEl(b).toString("hex")) :
-        strCmp(firstEl(a).toString(), firstEl(b).toString())
+        Buffer.isBuffer(el(a)) && Buffer.isBuffer(el(b)) ? strCmp(el(a).toString("hex"), el(b).toString("hex")) :
+        strCmp(el(a).toString(), el(b).toString())
     )
+let toPublic = object =>
+    object == null ? object :
+    object.Q ? object :
+    PublicKey.fromStringOrThrow(object)
