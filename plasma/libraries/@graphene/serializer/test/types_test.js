@@ -10,7 +10,7 @@ import { is } from "immutable"
 import { PublicKey, PrivateKey } from "@graphene/ecc"
 
 describe("types", function() {
-    
+
     it("vote_id",function() {
         var toHex=function(id){
             var vote = type.vote_id.fromObject(id);
@@ -28,53 +28,55 @@ describe("types", function() {
         };
         out_of_range("0:"+(0xffffff+1));
         out_of_range("256:0");
-        
+
     });
-    
+
     it("set sort", function() {
         var bool_set = type.set(type.bool);
         // Note, 1,0 sorts to 0,1
         assert.equal("020001", Convert(bool_set).toHex([1,0]));
         th.error("duplicate (set)", function() { return Convert(bool_set).toHex([1,1]); });
-        
+
     });
-    
+
     it("string sort", function() {
         var setType = type.set(type.string);
         var set = setType.fromObject(["a","z","m"])
         var setObj = setType.toObject(set)
         assert.deepEqual(["a","m","z"], setObj, "not sorted")
     });
-    
+
     it("map sort", function() {
         var bool_map = type.map(type.bool, type.bool);
         // 1,1 0,0   sorts to   0,0  1,1
         assert.equal("0200000101", Convert(bool_map).toHex([[1,1],[0,0]]));
         th.error("duplicate (map)", function() { return Convert(bool_map).toHex([[1,1],[1,1]]); });
     })
-    
+
     it("public_key sort", function() {
         let mapType = type.map(type.public_key, type.uint16)
         let map = mapType.fromObject([//not sorted
-            ["TEST56ankGHKf6qUsQe7vPsXTSEqST6Dt1ff73aV3YQbedzRua8NLQ",0],
-            ["TEST8me6d9PqzTgcoHxx6b4rnvWVTqz11kafidRAZwfacJkcJtfd75",0],
+            ["TEST6FHYdi17RhcUXJZr5fxZm1wvVCpXPekiHeAEwRHSEBmiR3yceK",0],
+            ["TEST5YdgWfAejDdSuq55xfguqFTtbRKLi2Jcz1YtTsCzYgdUYXs92c",0],
+            ["TEST7AGnzGCAGVfFnyvPziN67mfuHx9rx89r2zVoRGW1Aawim1f3Qt",0],
         ])
         let mapObject = mapType.toObject(map)
-        assert.deepEqual(mapObject, [ // sorted (uppercase comes first)
-            ["TEST8me6d9PqzTgcoHxx6b4rnvWVTqz11kafidRAZwfacJkcJtfd75",0],
-            ["TEST56ankGHKf6qUsQe7vPsXTSEqST6Dt1ff73aV3YQbedzRua8NLQ",0],
+        assert.deepEqual(mapObject, [ // sorted (witness_node sorts assending by "address" (not pubkey))
+            ["TEST7AGnzGCAGVfFnyvPziN67mfuHx9rx89r2zVoRGW1Aawim1f3Qt",0],
+            ["TEST5YdgWfAejDdSuq55xfguqFTtbRKLi2Jcz1YtTsCzYgdUYXs92c",0],
+            ["TEST6FHYdi17RhcUXJZr5fxZm1wvVCpXPekiHeAEwRHSEBmiR3yceK",0],
         ])
     })
-    
-    
-    
+
+
+
     it("type_id sort", function() {
         // map (protocol_id_type "account"), (uint16)
         let t = type.map(type.protocol_id_type("account"), type.uint16);
         assert.deepEqual( t.fromObject([[1,1],[0,0]]), [[0,0],[1,1]], 'did not sort' )
         assert.deepEqual( t.fromObject([[0,0],[1,1]]), [[0,0],[1,1]], 'did not sort' )
     });
-    
+
     it("precision number strings", function() {
         var check=function(input_string, precision, output_string){
             return assert.equal(
@@ -85,7 +87,7 @@ describe("types", function() {
                 )
             );
         };
-        
+
         check(
             "12345678901234567890123456789012345678901234567890.12345",5,
             "1234567890123456789012345678901234567890123456789012345"
@@ -98,21 +100,21 @@ describe("types", function() {
         check("-",    0,      "0");
         check("1",    0,      "1");
         check("11",   0,      "11");
-        
+
         overflow(function(){ return check(".1", 0, ""); });
         overflow(function(){ return check("-.1", 0, ""); });
         overflow(function(){ return check("0.1", 0, ""); });
         overflow(function(){ return check("1.1", 0, ""); });
         overflow(function(){ return check("1.11", 1, ""); });
-        
+
         check("",     1,      "00");
         check("1",    1,      "10");
         check("1.1",  1,      "11");
         check("-1",   1,      "-10");
         check("-1.1", 1,      "-11");
-        
+
     });
-    
+
     return it("precision number long", function() {
         var _precision;
         assert.equal(
@@ -122,22 +124,22 @@ describe("types", function() {
             ).toString(),
             "to_bigint64 MAX_VALUE mismatch"
         );
-        
+
         // Long.MAX_VALUE.toString() == 9223372036854775807
         // Long.MAX_VALUE.toString() +1 9223372036854775808
         overflow(function(){ return p.to_bigint64(
             '9223372036854775808', _precision = 0
         );
         });
-        
+
         assert.equal("0", p.to_string64(Long.ZERO, 0));
         assert.equal("00", p.to_string64(Long.ZERO, 1));
-        
+
         overflow(function(){ return p.to_bigint64(
             '92233720368547758075', _precision = 1
         );
         });
-        
+
     });
 });
 
