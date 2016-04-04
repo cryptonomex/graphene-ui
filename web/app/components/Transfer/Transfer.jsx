@@ -85,35 +85,40 @@ class Transfer extends React.Component {
 
     componentWillReceiveProps(nextProps) {
         if (nextProps.wallet_locked !== this.props.wallet_locked) {
-            this. queryBlindBalance(this.state.from_name);
+            this.queryBlindBalance();
         }
     }
 
-    queryBlindBalance(from_name) {
-        if (from_name && from_name.length > 1) {
-            const from = from_name[0] === "~" ? from_name.slice(1) : `@${from_name}`;
+    queryBlindBalance() {
+        console.log("queryBlindBalance", this.state.from_name, this.state.to_name);
+        if (this.state.from_name && this.state.from_name.length > 1) {
+            const raw_from = this.state.from_name[0] === "~" ? this.state.from_name.slice(1) : this.state.from_name;
+            const raw_to = this.state.to_name[0] === "~" ? this.state.to_name.slice(1) : this.state.to_name;
             const cwallet = WalletDb.getState().cwallet;
             try {
-                let h1 = cwallet.blindHistory(from)
-                let h2 = cwallet.blindHistory(this.state.to_name)
+                let h1 = cwallet.blindHistory(raw_from)
+                let h2 = cwallet.blindHistory(raw_to)
                 let blind_history = h1.merge(h2).toJS()
-                cwallet.getBlindBalances(from.replace(/^~/,"")).then(res => {
-                    console.log("-- getBlindBalances -->", from_name, res.toJS(), cwallet.blindHistory(from.replace(/^~/,"")).toJS());
+                console.log('blind_history', blind_history)
+                cwallet.getBlindBalances(raw_from).then(res => {
+                    // console.log("-- getBlindBalances -->", this.state.from_name, res.toJS(), cwallet.blindHistory(raw_from).toJS());
                     this.setState({blind_balances: res.toJS(), blind_history});
                 });
             } catch (error) {
-                //console.log("-- getBlindBalances error -->", from_name, error);
+                if(/Wallet is locked/.test(error.toString()))
+                    this.setState({blind_balances: {}, blind_history: []})
+                else
+                    console.log("-- getBlindBalances error -->", raw_from, raw_to, error);
             }
         }
     }
 
     fromChanged(from_name) {
-        this.queryBlindBalance(from_name);
-        this.setState({from_name, asset: undefined, amount: undefined, error: null, propose: false, propose_account: "", blind_balances: null})
+        this.setState({from_name, asset: undefined, amount: undefined, error: null, propose: false, propose_account: "", blind_balances: null}, ()=> this.queryBlindBalance())
     }
 
     toChanged(to_name) {
-        this.setState({to_name, error: null})
+        this.setState({to_name, error: null}, ()=> this.queryBlindBalance())
     }
 
     onFromAccountChanged(from_account) {
@@ -202,6 +207,7 @@ class Transfer extends React.Component {
                         } else {
                             this.setState({ loading: false })
                         }
+                        this.queryBlindBalance();
                     }).catch(error => {
                         console.error("-- transferToBlind error -->", error);
                         this.setState({error: error.message, loading: false});

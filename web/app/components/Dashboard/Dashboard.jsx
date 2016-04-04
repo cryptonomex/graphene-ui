@@ -150,6 +150,13 @@ class Dashboard extends React.Component {
         const df = this.state.dashboardFilter;
         const filterText = counterpart.translate("markets.filter");
 
+        // if(! WalletDb.isLocked())
+        //     private_accounts.forEach( name =>{
+        //         cwallet.getBlindBalances(name).then( bb => {
+        //             console.log('name,bb', name,bb.toJS())
+        //         })
+        //     })
+        
         return (
             <div className={outerClass}>
 

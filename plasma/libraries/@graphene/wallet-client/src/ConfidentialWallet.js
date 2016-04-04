@@ -425,7 +425,10 @@ export default class ConfidentialWallet {
 
         if (pubkey_or_label) {
             let public_key = this.getPublicKey(pubkey_or_label)
-            assert(public_key, "missing pubkey_or_label " + flipPrefix(pubkey_or_label))
+            // assert(public_key, "missing pubkey_or_label " + pubkey_or_label)
+            if(!public_key)
+                return List()
+            
             let pubkey = public_key.toString()
             blind_receipts = this.blind_receipts().filter( receipt => receipt.get("from_key") === pubkey || receipt.get("to_key") === pubkey )
         } else {
@@ -434,10 +437,11 @@ export default class ConfidentialWallet {
 
         return blind_receipts
             .reduce( (r, receipt) => {
-                receipt = receipt.update("from_label", label => flipPrefix(label))
-                receipt = receipt.update("to_label", label => flipPrefix(label))
+                receipt = receipt.update("from_label", label => uiPrefix(label))
+                receipt = receipt.update("to_label", label => uiPrefix(label))
                 // console.log("-- receipt -->", receipt.toJS());
-                return r.push( receipt )}, List())
+                return r.push( receipt )
+            }, List())
             .sort( (a, b) => a.get("date") > b.get("date") )
     }
     
@@ -829,7 +833,9 @@ export default class ConfidentialWallet {
 function fetch_blinded_balances(pubkey_or_label, callback) {
     
     let public_key = this.getPublicKey( pubkey_or_label )
-    assert( public_key, "missing pubkey_or_label " + pubkey_or_label)
+    // assert( public_key, "missing pubkey_or_label " + pubkey_or_label)
+    if( ! public_key)
+        return Promise.resolve()
     
     let pubkey = public_key.toString()
 
@@ -1234,10 +1240,17 @@ function assertLogin() {
         throw new Error("Wallet is locked")
 }
 
-var flipPrefix = label =>
+var uiPrefix = label =>
     ! label ? label :
     /^@/.test(label) ? label.substring(1) :
-    "~" + label
+    !/^~/.test(label) ? "~" + label :
+    label
+
+// var internalPrefix = label =>
+//     ! label ? label :
+//     /^~/.test(label) ? label.substring(1) :
+//     !/^@/.test(label) ? "@" + label :
+//     label
 
 var toString = data => data == null ? data :
     data["toWif"] ? data.toWif() : // Case for PrivateKey.toWif()

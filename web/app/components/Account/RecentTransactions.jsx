@@ -165,9 +165,7 @@ class RecentTransactions extends React.Component {
         }) : [];
         history = [...blindHistory, ...history].sort(compareOps);
 
-
-
-        //console.log("-- RecentTransactions.render -->", history);
+        // console.log("-- RecentTransactions.render -->", history);
         let historyCount = history.length;
 
         const display_history = history.length ?
