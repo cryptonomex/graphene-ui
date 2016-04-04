@@ -14,6 +14,7 @@ import WalletUnlock from "components/Wallet/WalletUnlock"
 import VerifyPassword from "components/Wallet/VerifyPassword"
 // import TokenRequest from "components/Wallet/TokenRequest"
 import BackupServerStore from "stores/BackupServerStore"
+import SettingsStore from "stores/SettingsStore"
 import { validToken, extractSeed } from "@graphene/time-token"
 import AuthStore from "stores/AuthStore"
 import WalletDb from "stores/WalletDb"
@@ -69,6 +70,8 @@ class BackupServer extends Component {
     
     render() {
         
+        const server_enabled = SettingsStore.getSetting("server_backup") != null
+            
         const loading_indicator = <div className="center-content">
             {this.state.busy ? <LoadingIndicator type="circle"/> : null }
         </div>
@@ -79,12 +82,28 @@ class BackupServer extends Component {
             </div>
         
         const download_option = ! WalletDb.isEmpty() ? <div>
-            <hr/><br/>
             <Link to="wallet/backup/download">
                 <label className="secondary"><Translate content="wallet.download_backup" /></label>
             </Link>
             
         </div> : null
+        
+        if( ! server_enabled)
+            return <div>
+                {WalletDb.isEmpty() ?
+                    <div>
+                        <Translate content="wallet.is_empty" />
+                        <br/>
+                    </div>
+                :
+                    <Link to="wallet/backup/download">
+                        <label className="secondary"><Translate content="wallet.download_backup" /></label>
+                    </Link>
+                }
+                <br/>
+                <Link to="wallet"><div className="button outline">
+                    <Translate content="wallet.console" /></div></Link>
+            </div>
         
         if( ! WalletDb.isLocked()) {
             let wallet = WalletDb.getState().wallet
@@ -93,6 +112,7 @@ class BackupServer extends Component {
                 //Link to Settings?
                 return <div>
                     <div className="error">Not connected to the backup server</div>
+                    <hr/><br/>
                     {download_option}    
                 </div>
         }
@@ -428,6 +448,7 @@ class BackupServer extends Component {
                     {body}
                     <br/>
                     {loading_indicator}
+                    <hr/><br/>
                     {download_option}
                 </div>
             </div>

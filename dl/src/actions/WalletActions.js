@@ -31,10 +31,13 @@ class WalletActions {
         })
     }
     
-    setBackupDate() {
+    setBackupComplete() {
         CachedPropertyActions.set("backup_recommended", false)
-        this.dispatch()
     }
+    
+    // setBackupDate() {
+    //     this.dispatch()
+    // }
     
     setBrainkeyBackupDate() {
         this.dispatch()

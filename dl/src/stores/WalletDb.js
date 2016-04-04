@@ -85,13 +85,13 @@ class WalletDb extends BaseStore {
             "keys", "deposit_keys", "data", "prop",
             "process_transaction", "decodeMemo","getPrivateKey","getDeterministicKeys",
             "logout","isLocked","onCreateWallet","login","changePassword","verifyPassword",
-            "setWalletModified","setBackupDate","setBrainkeyBackupDate","binaryBackupRecommended", "api",// "tryRestoreKey",
+            "setBrainkeyBackupDate","binaryBackupRecommended", "api",// "tryRestoreKey",
             "loadDbData", "subscribe", "unsubscribe", 
         )
     }
     
     api() {
-        let url = SettingsStore.getSetting("backup_server")
+        let url = SettingsStore.getSetting("backup_server2")
         let ws_rpc = new WalletWebSocket(url, false)
         let api = new WalletApi(ws_rpc)
         return api
@@ -119,7 +119,7 @@ class WalletDb extends BaseStore {
     }
     
     onChangeSetting(payload) {
-        if (payload.setting === "backup_server") {
+        if (payload.setting === "backup_server2") {
             if( ! wallet ) return
             let url = payload.value === "" ? null : payload.value
             wallet.useBackupServer(url)
@@ -198,7 +198,7 @@ class WalletDb extends BaseStore {
             _wallet.subscribe(this.notify)
             
             try {
-                let url = SettingsStore.getSetting("backup_server")
+                let url = SettingsStore.getSetting("backup_server2")
                 if( url === "" ) url = null
                 _wallet.useBackupServer(url)
             }catch(error) { console.error(error); }
@@ -541,17 +541,11 @@ class WalletDb extends BaseStore {
         return p
     }
     
-    setWalletModified() {
-        return wallet.setState(
-            wallet.wallet_object.set("backup_date", new Date().toISOString())
-        )
-    }
-    
-    setBackupDate() {
-        return wallet.setState(
-            wallet.wallet_object.set("backup_date", new Date().toISOString())
-        )
-    }
+    // setBackupDate() {
+    //     return wallet.setState(
+    //         wallet.wallet_object.set("backup_date", new Date().toISOString())
+    //     )
+    // }
     
     setBrainkeyBackupDate() {
         return wallet.setState(

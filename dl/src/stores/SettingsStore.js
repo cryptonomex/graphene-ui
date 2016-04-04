@@ -18,7 +18,8 @@ class SettingsStore {
             //connection: "wss://bitshares.openledger.info/ws",
             connection: "ws://testnet.bitshares.eu/ws",
             faucet_address: "http://testnet.bitshares.eu",
-            backup_server: "ws://cnx.rocks:9080",
+            // TODO Uncomment to turn on backups by default.  These are off pending more testing and backup server replication.
+            // backup_server2: "ws://cnx.rocks:9080",
             unit: CORE_ASSET,
             showSettles: false,
             walletLockTimeout: 60 * 10,

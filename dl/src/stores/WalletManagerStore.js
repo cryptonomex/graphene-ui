@@ -19,7 +19,7 @@ class WalletManagerStore extends BaseStore {
         this.bindListeners({
             onRestore: WalletActions.restore,
             onSetWallet: WalletActions.setWallet,
-            onSetBackupDate: WalletActions.setBackupDate,
+            // onSetBackupDate: WalletActions.setBackupDate,
             onSetBrainkeyBackupDate: WalletActions.setBrainkeyBackupDate
         })
         super._export("setState", "onDeleteWallet")
@@ -107,9 +107,9 @@ class WalletManagerStore extends BaseStore {
         return WalletDb.deleteWallet(delete_wallet_name)
     }
     
-    onSetBackupDate() {
-        WalletDb.setBackupDate()
-    }
+    // onSetBackupDate() {
+    //     WalletDb.setBackupDate()
+    // }
     
     onSetBrainkeyBackupDate() {
         WalletDb.setBrainkeyBackupDate()

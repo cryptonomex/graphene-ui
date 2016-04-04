@@ -127,7 +127,7 @@ class AltFooter extends Component {
             stores={[CachedPropertyStore, BlockchainStore, WalletDb, BackupServerStore]}
             inject ={{
                 backup_recommended: ()=> 
-                    ( ! WalletDb.isLocked() && BackupServerStore.getState().backup_status !== "backed_up" && ( ! WalletDb.prop("backup_date") || CachedPropertyStore.get("backup_recommended"))),
+                    ( ! WalletDb.isLocked() && BackupServerStore.getState().backup_status !== "backed_up" && CachedPropertyStore.get("backup_recommended")),
                 rpc_connection_status: ()=> BlockchainStore.getState().rpc_connection_status
                 // Disable notice for separate brainkey backup for now to keep things simple.  The binary wallet backup includes the brainkey...
                 // backup_brainkey_recommended: ()=> {

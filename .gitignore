@@ -12,6 +12,7 @@ dist
 web/app/components/Exchange/exchange.css
 cli/bundle.js
 web/dist-prod
+web/assets/app.js
 plasma/.babelrc
 
 >>>>>>> master
