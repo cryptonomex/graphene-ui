@@ -574,8 +574,12 @@ export default class ConfidentialWallet {
             } else {
                 result.from_label = opt_from
             }
+            
             result.amount = memo.amount
             result.memo = opt_memo
+            
+            if(/^to .*$/.test(opt_memo) && result.from_label === result.to_label)
+                result.to_label = "@" + opt_memo.substring("to ".length)
             
             let owner = authority({ key_auths: [[ to_key.child(child).toString(), 1 ]] })
             
@@ -627,12 +631,15 @@ export default class ConfidentialWallet {
                     console.log( "ConfidentialWallet\tINFO importing external receipt")
                     
                     let from_label = this.getKeyLabel( r.decrypted_memo.from ) || opt_from
+                    let to_label = r.label
+                    if(/^to .*$/.test(opt_memo) && from_label === to_label)
+                        to_label = "@" + opt_memo.substring("to ".length)
                     
                     // The wallet does not want to decrypt external receipts even when the one-time-key is recorded.  This will record them anyways.  This is probably better, decrypting the memo is not required and this saves the over-head of keeping one-time-keys.
                     let external_receipt = {
                         conf: r.confirmation,
                         to_key: r.confirmation.to,
-                        to_label: r.label,
+                        to_label,
                         from_key: r.decrypted_memo.from,
                         from_label,
                         amount: r.decrypted_memo.amount,
