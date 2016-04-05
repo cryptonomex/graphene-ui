@@ -201,7 +201,7 @@ class WalletDb extends BaseStore {
             
             try {
                 let url = SettingsStore.getSetting("backup_server2")
-                if( url === "" ) url = null
+                if( !url || url == "" ) url = null
                 _wallet.useBackupServer(url)
             }catch(error) { console.error(error); }
             
