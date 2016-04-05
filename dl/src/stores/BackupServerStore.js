@@ -1,5 +1,5 @@
 import alt from "alt-instance"
-import { fromJS } from "immutable"
+import { fromJS, is } from "immutable"
 import { rfc822Email, WalletWebSocket } from "@graphene/wallet-client"
 import CachedPropertyActions from "actions/CachedPropertyActions"
 import WalletDb from "stores/WalletDb"
@@ -42,14 +42,19 @@ class BackupServerStore {
 
         { // all wallet updates will trigger backup_recommended
             let empty_wallet = wallet.wallet_object.isEmpty()
-            // console.log("BackupServerStore\tonUpdate empty_wallet", empty_wallet)
-            if( ! this.prev_wallet_object && ! empty_wallet)
-                this.prev_wallet_object = wallet.wallet_object
-            
-            else if(this.prev_wallet_object && this.prev_wallet_object !== wallet.wallet_object) {
-                this.prev_wallet_object = wallet.wallet_object
-                CachedPropertyActions.set("backup_recommended", true)
-                console.log("BackupServerStore\tonUpdate backup_recommended");
+            if(empty_wallet) 
+                this.prev_wallet_object = undefined
+            else {
+                // console.log("BackupServerStore\tonUpdate empty_wallet", empty_wallet)
+                if( ! this.prev_wallet_object)
+                    this.prev_wallet_object = wallet.wallet_object
+                
+                else if(this.prev_wallet_object && ! is(this.prev_wallet_object, wallet.wallet_object)) {
+                    // console.log('string', this.prev_wallet_object.toJS(), wallet.wallet_object.toJS())
+                    this.prev_wallet_object = wallet.wallet_object
+                    CachedPropertyActions.set("backup_recommended", true)
+                    console.log("BackupServerStore\tonUpdate backup_recommended");
+                }
             }
         }
         
