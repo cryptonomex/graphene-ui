@@ -430,9 +430,19 @@ export default class ConfidentialWallet {
                 return List()
             
             let pubkey = public_key.toString()
-            blind_receipts = this.blind_receipts().filter( receipt => receipt.get("from_key") === pubkey || receipt.get("to_key") === pubkey )
+            blind_receipts = this.blind_receipts().filter( receipt =>{
+                const is_change = receipt.get("conf").get("is_change")
+                console.log('is_change', is_change)
+                return ! is_change && (
+                    receipt.get("from_key") === pubkey ||
+                    receipt.get("to_key") === pubkey
+                )
+            })
         } else {
-            blind_receipts = this.blind_receipts()
+            blind_receipts = this.blind_receipts().filter( receipt =>{
+                const is_change = receipt.get("conf").get("is_change")
+                return ! is_change
+            })
         }
 
         return blind_receipts
@@ -578,7 +588,7 @@ export default class ConfidentialWallet {
             result.amount = memo.amount
             result.memo = opt_memo
             
-            if(/^to .*$/.test(opt_memo) && result.from_label === result.to_label)
+            if(!result.conf.is_change && /^to .*$/.test(opt_memo) && result.from_label === result.to_label)
                 result.to_label = "@" + opt_memo.substring("to ".length)
             
             let owner = authority({ key_auths: [[ to_key.child(child).toString(), 1 ]] })
@@ -734,20 +744,31 @@ export default class ConfidentialWallet {
                 let operations = conf.trx.operations
                 operations.push( from_blind )
                 
-                let p1
                 let has_change = conf.outputs.length === 2
-                if( has_change ) {
-                    let change_out = conf.outputs[0]
-                    let cr = { // confirmation_receipt
-                        // { to, one_time_key, encrypted_memo, [owner = null] } 
-                        to: this.getPublicKey(from_blind_account_key_or_label).toString(),
-                        one_time_key: change_out.confirmation.one_time_key,
-                        encrypted_memo: change_out.confirmation.encrypted_memo
+                
+                // make sure receipts (especially the change receipt) are stored after confirmation but before broadcasting (durable).  A callback function (p1) is required for this.
+                let p1 = ()=>{
+                    let promises = [], cr, next = 0
+                    if( has_change ) {
+                        let change_out = conf.outputs[0]
+                        next = 1
+                        cr = { // confirmation_receipt
+                            to: this.getPublicKey(from_blind_account_key_or_label).toString(),
+                            one_time_key: change_out.confirmation.one_time_key,
+                            encrypted_memo: change_out.confirmation.encrypted_memo,
+                            is_change: true
+                        }
                     }
-                    // make sure the change is stored before broadcasting (durable)
-                    p1 = ()=> this.receiveBlindTransfer(cr, from_blind_account_key_or_label, "to " + to_account.get("name"))
+                    if(cr) promises.push(
+                        // change receipt (sent back to self)
+                        this.receiveBlindTransfer(cr, from_blind_account_key_or_label, "to " + from_blind_account_key_or_label)
+                    )
+                    let to_out = conf.outputs[next]
+                    promises.push(
+                        this.receiveBlindTransfer(to_out.confirmation, from_blind_account_key_or_label, "to " + to_account.get("name"))
+                    )
+                    return Promise.all(promises)
                 }
-                    
                 // console.log("conf.trx", JSON.stringify(conf.trx))
                 return this.send_blind_tr(
                     operations,
@@ -1086,6 +1107,7 @@ function blind_transfer_help(
                             conf_output.confirmation.one_time_key = one_time_private.toPublicKey().toString()
                             conf_output.confirmation.to = from_key.toString()
                             conf_output.confirmation.owner = change_out.owner
+                            // conf_output.confirmation.to_key_or_label = to_key_or_label
                             // console.log('b bufferToNumber', bufferToNumber(from_secret.slice(0, 4)))
                             
                             let from_aes = Aes.fromBuffer(from_secret)
@@ -1120,6 +1142,7 @@ function blind_transfer_help(
                         conf_output.confirmation.to = to_key.toString()
                         conf_output.confirmation.owner = to_out.owner
                         conf_output.confirmation.external_receipt = true
+                        // conf_output.confirmation.to_key_or_label = to_key_or_label
                         
                         let aes = Aes.fromBuffer(secret)
                         let memo = stealth_memo_data.toBuffer( conf_output.decrypted_memo )

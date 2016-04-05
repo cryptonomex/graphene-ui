@@ -114,6 +114,10 @@ class RecentTransactions extends React.Component {
         });
     }
 
+    /**
+        @arg {object} accountList - ChainStore account objects
+        @arg {string} filter - "transfer"
+    */ 
     _getHistory(accountsList, filter) {
         let history = [];
         let seen_ops = new Set();

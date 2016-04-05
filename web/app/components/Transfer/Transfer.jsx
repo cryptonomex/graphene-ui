@@ -90,7 +90,7 @@ class Transfer extends React.Component {
     }
 
     queryBlindBalance() {
-        console.log("queryBlindBalance", this.state.from_name, this.state.to_name);
+        // console.log("queryBlindBalance", this.state.from_name, this.state.to_name);
         if (this.state.from_name && this.state.from_name.length > 1) {
             const raw_from = this.state.from_name[0] === "~" ? this.state.from_name.slice(1) : this.state.from_name;
             const raw_to = this.state.to_name[0] === "~" ? this.state.to_name.slice(1) : this.state.to_name;
@@ -395,6 +395,7 @@ class Transfer extends React.Component {
 
         let accountsList = Immutable.Set();
         accountsList = accountsList.add(from_account);
+        // accountsList = accountsList.add(to_account);
         let tabIndex = 1;
 
         return (

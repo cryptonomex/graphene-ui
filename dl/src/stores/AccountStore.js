@@ -131,7 +131,8 @@ class AccountStore extends BaseStore {
 
         this.setState({
             privateAccounts: cwallet.labels(key => key.has("private_wif")),
-            privateContacts: cwallet.labels(key => ! key.has("private_wif")),
+            // ConfidentialWallet saves keys @public-account (don't show public account keys here) 
+            privateContacts: cwallet.labels(key => ! key.has("private_wif") && ! /^@/.test(key.get("label"))),
         })
         this.updateLinkedAccounts();
         this.saveDbData();
