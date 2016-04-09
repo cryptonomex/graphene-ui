@@ -25,6 +25,14 @@ class WalletUnlockStore {
             this.walletLockTimeout = timeoutSetting;
         }
 
+        // An unlock may happen directly on the wallet
+        WalletDb.subscribe(this.onWalletDbUpdate.bind(this))
+    }
+    
+    onWalletDbUpdate() {
+        const locked = WalletDb.isLocked()
+        if(this.state.locked !== locked)
+            this.setState({ locked })
     }
     
     onUnlock({resolve, reject}) {
