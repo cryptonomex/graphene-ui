@@ -44,6 +44,7 @@ class TransferReceiptModal extends React.Component {
                 <a href="#" className="close-button">&times;</a>
             </Trigger>
             <h3>Transfer Receipt</h3>
+            <h5>Give this receipt to the recipient to complete the transaction.</h5>
             <div style={{paddingTop: "1rem"}}>
                 <div className="form-group">
                     <textarea ref="t_receipt" id="t_receipt" rows="5" cols="50" value={value} autoFocus readOnly onClick={this._selectAndCopy} />
