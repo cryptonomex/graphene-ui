@@ -576,8 +576,9 @@ export default class ConfidentialWallet {
             if( memo.from ) {
                 result.from_key = memo.from
                 result.from_label = this.getKeyLabel( result.from_key )
-                if( ! result.from_label ) {
+                if( ! result.from_label && opt_from ) {
                     result.from_label = opt_from
+                    // queue_mills: defer a possible remote server backup if another update shows up soon
                     this.wallet.queue_mills = 20*1000
                     this.setKeyLabel( result.from_key, result.from_label )
                 }

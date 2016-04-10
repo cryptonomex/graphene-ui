@@ -108,9 +108,15 @@ class AccountActions {
         this.dispatch(name);
     }
 
-    addPrivateAccount(name) {
+    addPrivateAccount(name, key) {
         const cwallet = WalletDb.getState().cwallet;
-        cwallet.createBlindAccount(name, WalletDb.getBrainKey() + name);
+        try {
+            const private_key = PrivateKey.fromWif(key)
+            cwallet.setKeyLabel( private_key, name )
+        } catch(e) {
+            // consider setting brainkey_sequence: name
+            cwallet.createBlindAccount(name, WalletDb.getBrainKey() + name);
+        }
         this.dispatch(name);
     }
 

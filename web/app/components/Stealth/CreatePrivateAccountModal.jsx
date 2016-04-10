@@ -10,7 +10,7 @@ class CreatePrivateAccountModal extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = {label: null, key: null};
+        this.state = {label: null, private_key: null};
         
         ZfApi.subscribe("add_private_account_modal", (name, msg) => {
             if(name !== "add_private_account_modal") return
@@ -24,16 +24,17 @@ class CreatePrivateAccountModal extends React.Component {
     
     clear() {
         this.refs.label.clear();
-        //this.refs.key.clear();
-        this.setState({label: null, key: null});
+        this.refs.key.clear();
+        this.setState({label: null, private_key: null});
     }
 
     _onCreateClick(e) {
         if(e) e.preventDefault();
         ZfApi.publish("add_private_account_modal", "close");
         const label = this.state.label.slice(1);
+        const private_key = this.state.private_key
         try {
-            AccountActions.addPrivateAccount(label);
+            AccountActions.addPrivateAccount(label, private_key);
         }
         catch (error) {
             console.error("-- CreatePrivateAccountModal._onCreateClick -->", error);
@@ -46,8 +47,8 @@ class CreatePrivateAccountModal extends React.Component {
         this.setState({label: value});
     }
 
-    _onKeyChange(key) {
-        this.setState({key});
+    _onKeyChange({private_key}) {
+        this.setState({private_key});
     }
 
     render() {
@@ -68,7 +69,7 @@ class CreatePrivateAccountModal extends React.Component {
                         labelMode
                     />
                 </div>
-                {/*<PrivateKeyInput ref="key" onChange={this._onKeyChange} />*/}
+                <PrivateKeyInput ref="key" onChange={this._onKeyChange} />
                 <div className="button-group">
                     <a className={submit_btn_class} href onClick={this._onCreateClick}>Create Account</a>
                     <Trigger close="add_private_account_modal"><a href className="secondary button">Cancel</a></Trigger>

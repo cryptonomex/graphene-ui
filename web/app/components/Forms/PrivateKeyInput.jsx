@@ -7,6 +7,7 @@ import classNames from "classnames";
 import { validation } from "@graphene/chain";
 import Translate from "react-translate-component";
 import counterpart from "counterpart";
+import { key, PrivateKey } from "@graphene/ecc";
 
 class PrivateKeyInput extends React.Component {
 
@@ -71,15 +72,21 @@ class PrivateKeyInput extends React.Component {
     _onPrivateKeyChange(e) {
         e.preventDefault();
         var private_key = e.target.value;
-        this.setState({ private_key });
-        this.props.onChange({ private_key, public_key: this.state.public_key });
+        let public_key = ""
+        try {
+            const d = PrivateKey.fromWif(private_key)
+            public_key = d.toPublicKey().toString()
+        } catch(e) {
+        }
+        this.setState({ private_key, public_key });
+        this.props.onChange({ private_key, public_key });
         //this.validateKey(value);
     }
 
     _onPublicKeyChange(e) {
         e.preventDefault();
         var public_key = e.target.value;
-        this.setState({ public_key });
+        this.setState({ public_key, private_key: "" });
         this.props.onChange({ private_key: this.state.private_key, public_key });
     }
 
@@ -89,7 +96,13 @@ class PrivateKeyInput extends React.Component {
 
     _onCreatePrivateKey(e) {
         console.log("-- KeyInput._onCreatePrivateKey -->");
-        this.setState({private_key: "5JfttGJJGqyv4JsSYtb6spk7ZGFHYS29GrEk7g1gVz98jq2NFst", public_key: "BTS6bkAeJnEU7i6Hd1YWTNTKW1aqDoxpruezGxqLDunFV1qGANfxM"});
+        this.setState({private_key: "...", public_key: ""}, ()=> { setTimeout(()=> {
+            let d = key.get_random_key()
+            const private_key = d.toWif()
+            const public_key = d.toPublicKey().toString()
+            this.setState({private_key, public_key});
+            this.props.onChange({ private_key, public_key })
+        }, 200) })
     }
 
     render() {
