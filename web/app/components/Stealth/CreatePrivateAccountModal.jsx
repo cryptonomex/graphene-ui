@@ -5,6 +5,8 @@ import AccountActions from "actions/AccountActions";
 import ZfApi from "react-foundation-apps/src/utils/foundation-api";
 import AccountNameInput from "../Forms/AccountNameInput";
 import PrivateKeyInput from "../Forms/PrivateKeyInput";
+import notify from "actions/NotificationActions";
+import counterpart from "counterpart";
 
 class CreatePrivateAccountModal extends React.Component {
 
@@ -38,7 +40,8 @@ class CreatePrivateAccountModal extends React.Component {
         }
         catch (error) {
             console.error("-- CreatePrivateAccountModal._onCreateClick -->", error);
-            notify.error(error);
+            const error_trans = error.message ? counterpart.translate("wallet." + error.message) : null
+            notify.error(error_trans ? error_trans : error.toString());
         }
     }
 
