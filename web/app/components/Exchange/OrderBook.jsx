@@ -417,11 +417,11 @@ class OrderBook extends React.Component {
                             <div className="exchange-bordered">
                                 <div className="exchange-content-header ask">
                                     <Translate content="exchange.asks" />
-                                    {this.state.flip ? (
+                                    {/* {this.state.flip ? (
                                     <span>
                                         <span onClick={this._flipBuySell.bind(this)} style={{cursor: "pointer", fontSize: "1rem"}}>  &#8646;</span>
                                         {!this.props.smallScreen ? <span onClick={this.props.moveOrderBook} style={{cursor: "pointer", fontSize: "1rem"}}> &#8645;</span> : null}
-                                    </span>) : null}
+                                    </span>) : null} */}
                                     <div style={{lineHeight: "16px"}} className="float-right header-sub-title">
                                         <Translate content="exchange.total" />
                                         <span>: </span>
@@ -458,11 +458,11 @@ class OrderBook extends React.Component {
                             <div className="exchange-bordered">
                                 <div className="exchange-content-header bid">
                                     <Translate content="exchange.bids" />
-                                    {!this.state.flip ? (
+                                    {/* {!this.state.flip ? (
                                     <span>
                                         <span onClick={this._flipBuySell.bind(this)} style={{cursor: "pointer", fontSize: "1rem"}}>  &#8646;</span>
                                         <span onClick={this.props.moveOrderBook} style={{cursor: "pointer", fontSize: "1rem"}}> &#8645;</span>
-                                    </span>) : null}
+                                    </span>) : null} */}
                                     <div style={{lineHeight: "16px"}} className="float-right header-sub-title">
                                         <Translate content="exchange.total" />
                                         <span>: </span>
