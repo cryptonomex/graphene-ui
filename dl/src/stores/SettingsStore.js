@@ -27,13 +27,19 @@ class SettingsStore {
 
         // Default markets setup
         let topMarkets = [
-            "MKR", "OPEN.MKR", "BTS", "OPEN.ETH", "ICOO", "BTC", "OPEN.LISK",
-            "OPEN.STEEM", "OPEN.DAO", "PEERPLAYS", "USD", "CNY", "BTSR", "OBITS",
-            "OPEN.DGD", "EUR", "TRADE.BTC", "CASH.BTC", "GOLD", "SILVER",
-            "OPEN.USDT", "OPEN.EURT", "OPEN.BTC", "CADASTRAL", "BLOCKPAY"
+            "OPEN.USD",
+            "OPEN.BTC",
+            "OPEN.LTC",
+            "OPEN.ETH",
+            "OPEN.LSK",
+            "OPEN.DASH",
+            "OPEN.DOGE",
+            "OPEN.STEEM",
+            "BTS",
+            "BKT"
         ];
 
-        this.preferredBases = Immutable.List([CORE_ASSET, "OPEN.BTC", "USD", "CNY", "BTC"]);
+        this.preferredBases = Immutable.List(["KAPITAL"]);
         // Openledger
         // this.preferredBases = Immutable.List(["OPEN.BTC", "OPEN.ETH", "OPEN.USDT", "OPEN.EURT", CORE_ASSET]);
 
