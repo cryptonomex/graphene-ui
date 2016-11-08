@@ -3,12 +3,14 @@ var IntlActions = require("../actions/IntlActions");
 var SettingsActions = require("../actions/SettingsActions");
 var BaseStore = require("./BaseStore");
 var counterpart = require("counterpart-instance");
+var locale_en = require("json!assets/locales/locale-en");
 var locale_tr = require("json!assets/locales/locale-tr");
 var ls = require("common/localStorage");
 let ss = new ls("__graphene__");
 
 counterpart.registerTranslations("tr", locale_tr);
-counterpart.setFallbackLocale("tr");
+counterpart.registerTranslations("en", locale_en);
+counterpart.setFallbackLocale("en");
 
 import {addLocaleData} from 'react-intl';
 
@@ -34,7 +36,7 @@ class IntlStore extends BaseStore {
         this.currentLocale = ss.has("settings_v3") ? ss.get("settings_v3").locale : "tr";
 
         this.locales = ["tr"];
-        this.localesObject = {tr: locale_tr};
+        this.localesObject = {tr: locale_tr, en: locale_en};
 
         this.bindListeners({
             onSwitchLocale: IntlActions.switchLocale,
@@ -56,7 +58,8 @@ class IntlStore extends BaseStore {
     onSwitchLocale({locale, localeData}) {
         switch (locale) {
             case "tr":
-                counterpart.registerTranslations("tr", this.localesObject.tr);
+            case "en":
+                counterpart.registerTranslations(locale, this.localesObject[locale]);
                 break;
 
             default:
