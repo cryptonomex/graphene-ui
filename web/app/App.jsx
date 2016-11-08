@@ -68,7 +68,7 @@ import createBrowserHistory from "history/lib/createHashHistory";
 import {IntlProvider} from "react-intl";
 import intlData from "./components/Utility/intlData";
 import connectToStores from "alt/utils/connectToStores";
-import Chat from "./components/Chat/ChatWrapper";
+// import Chat from "./components/Chat/ChatWrapper";
 import Translate from "react-translate-component";
 
 require("./components/Utility/Prototypes"); // Adds a .equals method to Array for use in shouldComponentUpdate
@@ -216,7 +216,7 @@ class App extends React.Component {
                         <div className="grid-block vertical">
                             {this.props.children}
                         </div>
-                        <div className="grid-block shrink" style={{overflow: "hidden"}}>
+                        {/* <div className="grid-block shrink" style={{overflow: "hidden"}}>
                             {isMobile ? null :
                                 <Chat
                                     showChat={showChat}
@@ -225,7 +225,7 @@ class App extends React.Component {
                                     dockedChat={dockedChat}
                                 />}
 
-                        </div>
+                        </div> */}
                     </div>
                     {showFooter ? <Footer synced={this.state.synced}/> : null}
                     <ReactTooltip ref="tooltip" place="top" type="dark" effect="solid"/>

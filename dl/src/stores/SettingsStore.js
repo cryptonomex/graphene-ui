@@ -22,8 +22,7 @@ class SettingsStore {
             showSettles: false,
             showAssetPercent: false,
             walletLockTimeout: 60 * 10,
-            themes: "lightTheme",
-            disableChat: false
+            themes: "lightTheme"
         });
 
         // Default markets setup
@@ -90,10 +89,10 @@ class SettingsStore {
                 {translate: "yes"},
                 {translate: "no"}
             ],
-            disableChat: [
-                {translate: "yes"},
-                {translate: "no"}
-            ],
+            // disableChat: [
+            //     {translate: "yes"},
+            //     {translate: "no"}
+            // ],
             themes: [
                 "darkTheme",
                 "lightTheme",
