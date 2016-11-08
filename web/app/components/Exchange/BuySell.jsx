@@ -150,7 +150,7 @@ class BuySell extends React.Component {
                                         <Translate content="exchange.total" />:
                                     </div>
                                     <div className="grid-block small-6 no-margin no-overflow buy-sell-input">
-                                        <input type="number" id="buyAmount" value={total} onChange={totalChange} autoComplete="off" placeholder="0.0"/>
+                                        <input type="number" disabled id="buyAmount" value={total} autoComplete="off" placeholder="0.0"/>
                                     </div>
                                     <div className="grid-block small-3 no-margin no-overflow buy-sell-box">
                                         <AssetName name={base.get("symbol")} />
