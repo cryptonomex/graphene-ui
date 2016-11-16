@@ -281,7 +281,7 @@ class Header extends React.Component {
                     <div className="grp-menu-items-group header-right-menu">
                         {walletBalance}
 
-                        <div className="grid-block shrink overflow-visible grp-menu-item" style={{padding: "18px 0px 15px;"}}>
+                        <div className="grid-block shrink overflow-visible grp-menu-item" style={{padding: "18px 0px 15px"}}>
                             {accountsDropDown}
                         </div>
                         {lock_unlock}

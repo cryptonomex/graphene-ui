@@ -57,6 +57,8 @@
     "estimate_value": "Estimated account value",
     "polo_scam": "This account is not the real Poloniex account, please send to this account: poloniexwallet.",
     "bittrex_scam": "This account is not the real Bittrex account, please send to this account: bittrex-deposit.",
+    "wallet_options": "Wallet Options",
+    "api_server": "API Server",
     "whitelist": {
       "title": "Whitelist",
       "black": "Blacklist",
