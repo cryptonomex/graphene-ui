@@ -18,7 +18,7 @@ class SettingsStore {
             locale: "tr",
             apiServer: "wss://bitshares.openledger.info/ws",
             faucet_address: "https://bitshares.openledger.info",
-            unit: CORE_ASSET,
+            unit: "BTS",
             showSettles: false,
             showAssetPercent: false,
             walletLockTimeout: 60 * 10,
@@ -80,12 +80,10 @@ class SettingsStore {
             ],
             apiServer: [],
             unit: [
-                CORE_ASSET,
-                "USD",
-                "CNY",
-                "BTC",
-                "EUR",
-                "GBP"
+                "BTS",
+                "KAPITAL",
+                "OPEN.BTC",
+                "OPEN.USD"
             ],
             showSettles: [
                 {translate: "yes"},

@@ -42,6 +42,7 @@ class AccountStore extends BaseStore {
         );
 
         this.getMyAccounts = this.getMyAccounts.bind(this);
+        this.tryToSetCurrentAccount();
     }
 
     _getInitialState() {
@@ -51,7 +52,7 @@ class AccountStore extends BaseStore {
         return {
             update: false,
             subbed: false,
-            currentAccount: null,
+            currentAccount: accountStorage.get("currentAccount", null),
             linkedAccounts: Immutable.Set(),
             myIgnoredAccounts: Immutable.Set(),
             unFollowedAccounts: Immutable.Set(accountStorage.get("unfollowed_accounts", [])),

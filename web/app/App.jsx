@@ -6,12 +6,12 @@ import ReactDOM from "react-dom";
 import {Router, Route, IndexRoute, Redirect} from "react-router";
 import IntlStore from "stores/IntlStore"; // This needs to be initalized here even though IntlStore is never used
 import DashboardContainer from "./components/Dashboard/DashboardContainer";
-import Explorer from "./components/Explorer/Explorer";
-import Blocks from "./components/Explorer/BlocksContainer";
-import Assets from "./components/Explorer/AssetsContainer";
+// import Explorer from "./components/Explorer/Explorer";
+// import Blocks from "./components/Explorer/BlocksContainer";
+// import Assets from "./components/Explorer/AssetsContainer";
 import AccountsContainer from "./components/Explorer/AccountsContainer";
 import Witnesses from "./components/Explorer/Witnesses";
-import CommitteeMembers from "./components/Explorer/CommitteeMembers";
+// import CommitteeMembers from "./components/Explorer/CommitteeMembers";
 import Header from "components/Layout/Header";
 import Footer from "./components/Layout/Footer";
 import AccountPage from "./components/Account/AccountPage";
@@ -30,9 +30,9 @@ import Exchange from "./components/Exchange/ExchangeContainer";
 import Markets from "./components/Exchange/MarketsContainer";
 import Transfer from "./components/Transfer/Transfer";
 import Settings from "./components/Settings/SettingsContainer";
-import FeesContainer from "./components/Blockchain/FeesContainer";
+// import FeesContainer from "./components/Blockchain/FeesContainer";
 import BlockContainer from "./components/Blockchain/BlockContainer";
-import AssetContainer from "./components/Blockchain/AssetContainer";
+// import AssetContainer from "./components/Blockchain/AssetContainer";
 import Transaction from "./components/Blockchain/Transaction";
 import CreateAccount from "./components/Account/CreateAccount";
 import AccountStore from "stores/AccountStore";
@@ -314,11 +314,18 @@ let willTransitionTo = (nextState, replaceState, callback) => {
             return Promise.all([
                 PrivateKeyActions.loadDbData().then(()=>AccountRefsStore.loadDbData()),
                 WalletDb.loadDbData().then(() => {
+                    let currentAccount = AccountStore.getState().currentAccount;
+
                     if (!WalletDb.getWallet() && nextState.location.pathname !== "/create-account") {
                         replaceState(null, "/create-account");
                     }
                     if (nextState.location.pathname.indexOf("/auth/") === 0) {
-                        replaceState(null, "/dashboard");
+                        if (!currentAccount) {
+                            replaceState(null, "/create-account");
+                        } else {
+                            replaceState(null, `/account/${currentAccount}/overview`);
+                        }
+
                     }
                 }).catch((error) => {
                     console.error("----- WalletDb.willTransitionTo error ----->", error);
@@ -341,10 +348,21 @@ let willTransitionTo = (nextState, replaceState, callback) => {
 
 let routes = (
     <Route path="/" component={RootIntl} onEnter={willTransitionTo}>
-        <IndexRoute component={DashboardContainer}/>
+        <IndexRoute component={AccountPage} onEnter={(nextState, replaceState) => {
+            console.log("on enter accountpage", nextState);
+            let currentAccount = AccountStore.getState().currentAccount;
+            debugger;
+            if (nextState.location.pathname === "/") {
+                if (!currentAccount) {
+                    replaceState(null, "/create-account");
+                } else {
+                    replaceState(null, `/account/${currentAccount}/overview`);
+                }
+            }
+        }}/>
         <Route path="/auth/:data" component={Auth}/>
-        <Route path="/dashboard" component={DashboardContainer}/>
-        <Route path="explorer" component={Explorer}/>
+        {/* <Route path="/dashboard" component={DashboardContainer}/> */}
+        {/* <Route path="explorer" component={Explorer}/>
         <Route path="/explorer/fees" component={FeesContainer}/>
         <Route path="/explorer/blocks" component={Blocks}/>
         <Route path="/explorer/assets" component={Assets}/>
@@ -354,7 +372,7 @@ let routes = (
         </Route>
         <Route path="/explorer/committee-members" component={CommitteeMembers}>
             <IndexRoute component={CommitteeMembers}/>
-        </Route>
+        </Route> */}
         <Route path="wallet" component={WalletManager}>
             {/* wallet management console */}
             <IndexRoute component={WalletOptions}/>
@@ -371,12 +389,12 @@ let routes = (
         </Route>
         <Route path="create-wallet" component={WalletCreate}/>
         <Route path="transfer" component={Transfer}/>
-        <Route path="invoice/:data" component={Invoice}/>
-        <Route path="explorer/markets" component={Markets}/>
+        {/* <Route path="invoice/:data" component={Invoice}/> */}
+        {/* <Route path="explorer/markets" component={Markets}/> */}
         <Route path="market/:marketID" component={Exchange}/>
         <Route path="settings" component={Settings}/>
         <Route path="block/:height" component={BlockContainer}/>
-        <Route path="asset/:symbol" component={AssetContainer}/>
+        {/* <Route path="asset/:symbol" component={AssetContainer}/> */}
         <Route path="create-account" component={CreateAccount}/>
         <Route path="existing-account" component={ExistingAccount}>
             <IndexRoute component={BackupRestore}/>
