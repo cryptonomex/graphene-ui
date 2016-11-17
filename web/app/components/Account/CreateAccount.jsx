@@ -298,10 +298,10 @@ class CreateAccount extends React.Component {
                 <table className="table">
                     <tbody>
 
-                        <tr>
+                        {/* <tr>
                             <td><Translate content="wallet.tips_dashboard" />:</td>
                             <td><Link to="dashboard"><Translate content="header.dashboard" /></Link></td>
-                        </tr>
+                        </tr> */}
 
                         <tr>
                             <td><Translate content="wallet.tips_account" />:</td>
@@ -313,17 +313,15 @@ class CreateAccount extends React.Component {
                             <td><Link to="deposit-withdraw"><Translate content="wallet.link_deposit" /></Link></td>
                         </tr>
 
-
-
                         <tr>
                             <td><Translate content="wallet.tips_transfer" />:</td>
                             <td><Link to="transfer"><Translate content="wallet.link_transfer" /></Link></td>
                         </tr>
 
-                        <tr>
+                        {/* <tr>
                             <td><Translate content="wallet.tips_settings" />:</td>
                             <td><Link to="settings"><Translate content="header.settings" /></Link></td>
-                        </tr>
+                        </tr> */}
                     </tbody>
 
                 </table>
@@ -348,7 +346,7 @@ class CreateAccount extends React.Component {
 
     render() {
         let {step} = this.state;
-
+        step = 3;
         let my_accounts = AccountStore.getMyAccounts();
         let firstAccount = my_accounts.length === 0;
 
@@ -357,7 +355,6 @@ class CreateAccount extends React.Component {
                 <div className="grid-container shrink">
                     <div style={{textAlign: "center", paddingTop: 20}}>
                         <Translate content="wallet.wallet_new" component="h2" />
-
                         <h4 style={{paddingTop: 20}}>
                             {step === 1 ?
                                 <span>{firstAccount ? <Translate content="wallet.create_w_a" />  : <Translate content="wallet.create_a" />}</span> :
@@ -367,8 +364,15 @@ class CreateAccount extends React.Component {
                         </h4>
                     </div>
                 </div>
-                <div className="grid-block main-content wrap" style={{marginTop: "2rem"}}>
-                    <div className="grid-content small-12 medium-6" style={{paddingLeft: "15%"}}>
+                <div className="grid-block main-content wrap" style={{paddingLeft: "15%", marginTop: "2rem"}}>
+                    <div className="grid-content small-12 medium-6" style={{paddingRight: "15%"}}>
+                        {step === 1 ? this._renderAccountCreateText() : step === 2 ? this._renderBackupText() :
+                            this._renderGetStartedText()
+                        }
+
+                    </div>
+
+                    <div className="grid-content small-12 medium-6">
                         <p style={{fontWeight: "bold"}}>
                             <Translate content={"wallet.step_" + step} />
                         </p>
@@ -376,13 +380,6 @@ class CreateAccount extends React.Component {
                         {step === 1 ? this._renderAccountCreateForm() : step === 2 ? this._renderBackup() :
                             this._renderGetStarted()
                         }
-                    </div>
-
-                    <div className="grid-content small-12 medium-6" style={{paddingRight: "15%"}}>
-                        {step === 1 ? this._renderAccountCreateText() : step === 2 ? this._renderBackupText() :
-                            this._renderGetStartedText()
-                        }
-
                     </div>
                 </div>
             </div>

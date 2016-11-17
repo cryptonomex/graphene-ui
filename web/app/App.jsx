@@ -207,6 +207,16 @@ class App extends React.Component {
             content = <div className="grid-frame vertical"><LoadingIndicator /></div>;
         } else if (this.props.location.pathname === "/init-error") {
             content = <div className="grid-frame vertical">{this.props.children}</div>;
+        } else if (this.props.location.pathname === "/create-account") {
+            content = (
+                <div className="grid-frame vertical">
+                    <div className="grid-block">
+                        <div className="grid-block vertical">
+                            {this.props.children}
+                        </div>
+                    </div>
+                </div>
+            );
         } else {
             content = (
                 <div className="grid-frame vertical">
