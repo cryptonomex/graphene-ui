@@ -225,7 +225,7 @@ class CreateAccount extends React.Component {
                 {/* Backup restore option */}
                 <div style={{paddingTop: 40}}>
                     <label style={{textTransform: "none"}}>
-                        <Link to="/existing-account">
+                        <Link to="/existing-account/brainkey">
                             <Translate content="wallet.restore" />
                         </Link>
                     </label>
