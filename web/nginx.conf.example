@@ -1,0 +1,176 @@
+user bts;
+worker_processes  4;
+
+events {
+    worker_connections  1024;
+}
+
+http {
+    passenger_root /home/bts/.rbenv/versions/2.2.3/lib/ruby/gems/2.2.0/gems/passenger-5.0.20;
+    passenger_ruby /home/bts/.rbenv/versions/2.2.3/bin/ruby;
+    passenger_max_request_queue_size 1000;
+
+
+
+    include       mime.types;
+    default_type  application/octet-stream;
+
+    access_log  /www/logs/access.log;
+    error_log  /www/logs/error.log;
+    log_not_found off;
+
+    sendfile        on;
+    #tcp_nopush     on;
+
+    keepalive_timeout  165;
+
+    gzip  on;
+
+   server {
+        listen 80;
+        server_name invite.openledger.info;
+
+        location / {
+          access_log  /www/logs/slack_http_access.log;
+          error_log  /www/logs/slack_http_error.log;
+          proxy_pass http://slack_api;
+          proxy_set_header X-Real-IP $remote_addr;
+          proxy_set_header Host $host;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+
+    }
+
+    server {
+        listen 80 default_server;
+        server_name bitshares.openledger.info;
+
+        location ~ ^/(img|images|photo|photos|page|pages|uploads|countries|make|pic|foto|list|pictures|news|feed|rotated|carimg|category|reviews) {
+            access_log off;
+            return 404;
+        }
+
+        location / {
+          return 301 https://$server_name$request_uri;
+        }
+
+        location /nginx_status {
+            stub_status on;    # activate stub_status module
+            access_log off;
+            allow 127.0.0.1;   # restrict access to local only
+            allow 86.57.200.130; #aet office
+            allow 188.40.91.213; #eth0 localhost
+            allow 136.243.84.114;
+            allow 188.40.16.65;
+            allow 136.243.130.57;
+
+            deny all;
+        }
+
+    }
+
+
+    upstream pay_currency {
+	server localhost:8082;
+	server localhost:8083;
+    }
+
+    upstream pay_currency_new {
+	server localhost:8080;
+    }
+
+    upstream slack_api {
+	server localhost:3000;
+    }
+
+    upstream websockets {
+        server localhost:9090;  # node0
+        server localhost:9091;  # node1
+#       server localhost:9092;  # node2
+       server localhost:9093;  # node3
+    }
+
+    server {
+        listen       443 ssl;
+        server_name  bitshares.openledger.info;
+
+        ssl on;
+        ssl_certificate      /etc/nginx/certs/bitshares.openledger.info.crt;
+        ssl_certificate_key  /etc/ssl/private/bitshares.openledger.info.key;
+
+
+        ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+        ssl_ciphers 'EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH';
+        ssl_prefer_server_ciphers on;
+        ssl_session_cache shared:SSL:10m;
+
+        location ~ ^/(img|images|photo|photos|page|pages|uploads|countries|make|pic|foto|list|pictures|news|feed|rotated|carimg|category|reviews) {
+            access_log off;
+            return 404;
+        }
+
+        location ~ /ws/? {
+#            access_log off;
+            access_log  /www/logs/ws_access.log;
+            error_log  /www/logs/ws_error.log;
+            proxy_pass http://websockets;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header Host $host;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "upgrade";
+        }
+
+#        location ~ /ws0/? {
+#            access_log off;
+#            access_log  /www/logs/ws_access.log;
+#            error_log  /www/logs/ws_error.log;
+#            proxy_pass http://websockets_test;
+#            proxy_set_header X-Real-IP $remote_addr;
+#            proxy_set_header Host $host;
+#            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+#            proxy_http_version 1.1;
+#            proxy_set_header Upgrade $http_upgrade;
+#            proxy_set_header Connection "upgrade";
+#        }
+
+        location /depositwithdraw/ {
+          access_log off;
+          proxy_pass https://blocktrades.us/ol/;
+          proxy_set_header X-Real-IP $remote_addr;
+          proxy_set_header Host $host;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+
+	 location ~ /trollbox/? {
+          access_log off;
+          proxy_pass http://136.243.84.114:9000;
+          proxy_set_header X-Real-IP $remote_addr;
+          proxy_set_header Host $host;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+
+	 # WebSocket support (nginx 1.4)
+         proxy_http_version 1.1;
+         proxy_set_header Upgrade $http_upgrade;
+         proxy_set_header Connection "upgrade";
+	 proxy_send_timeout 3600s;
+         proxy_read_timeout 3600s;
+	}
+
+        location ~ ^/[\w\d\.-]+\.(js|css|dat|png|json)$ {
+            access_log  /www/logs/root_access.log;
+            error_log  /www/logs/root_error.log;
+            root /www/current/public/;
+            try_files $uri /wallet$uri =404;
+        }
+
+        location / {
+            access_log  /www/logs/root1_access.log;
+            error_log  /www/logs/root1_error.log;
+            passenger_enabled on;
+            root /www/current/public/;
+        }
+
+    }
+}
