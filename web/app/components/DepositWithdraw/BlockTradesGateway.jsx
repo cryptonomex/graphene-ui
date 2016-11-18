@@ -37,17 +37,24 @@ export default class BlockTradesGateway extends React.Component {
     }
 
     _getActiveCoin(props, state) {
-        let cachedCoin = props.viewSettings.get(`activeCoin_${props.provider}_${state.action}`, null);
-        let activeCoin = cachedCoin ? cachedCoin : props.coins.length ? props.coins[0][state.action === "withdraw" ? "symbol" : "backingCoinType"].toUpperCase() : null;
+        // let cachedCoin = props.viewSettings.get(`activeCoin_${props.provider}_${state.action}`, null);
+        let activeCoin = props.currentCoin[state.action === "withdraw" ? "symbol" : "backingCoinType"]; //cachedCoin ? cachedCoin : props.coins.length ? props.coins[0][state.action === "withdraw" ? "symbol" : "backingCoinType"].toUpperCase() : null;
+        console.log(state.action, "activeCoin:", activeCoin);
         return activeCoin;
     }
 
     componentWillReceiveProps(nextProps) {
-        if (nextProps.provider !== this.props.provider) {
-            this.setState({
-                activeCoin: this._getActiveCoin(nextProps, this.state.action)
-            });
+        // console.log(nextProps.currentCoin, "activeCoin:", this.state.activeCoin);
+        let nextCoin = nextProps.currentCoin[this.state.action === "withdraw" ? "symbol" : "backingCoinType"];
+        if (nextCoin !== this.state.activeCoin) {
+            this.onSelectCoin({target: {value: nextCoin}});
         }
+
+        // if (nextProps.provider !== this.props.provider) {
+        //     this.setState({
+        //         activeCoin: this._getActiveCoin(nextProps, this.state.action)
+        //     });
+        // }
     }
 
     // shouldComponentUpdate(nextProps, nextState) {
@@ -60,20 +67,20 @@ export default class BlockTradesGateway extends React.Component {
     //     return true;
     // }
 
-    onSelectCoin(e) {
+    onSelectCoin(e, action = this.state.action) {
         this.setState({
             activeCoin: e.target.value
         });
 
         let setting = {};
-        setting[`activeCoin_${this.props.provider}_${this.state.action}`] = e.target.value;
+        setting[`activeCoin_${this.props.provider}_${action}`] = e.target.value;
         SettingsActions.changeViewSetting(setting);
     }
 
     changeAction(type) {
-		
-        let activeCoin = this._getActiveCoin(this.props, {action: type});
 
+        let activeCoin = this._getActiveCoin(this.props, {action: type});
+        console.log("changeAction", type, activeCoin);
         this.setState({
             action: type,
             activeCoin: activeCoin
@@ -117,7 +124,6 @@ export default class BlockTradesGateway extends React.Component {
         let isDeposit = this.state.action === "deposit";
 
         return (
-
             <div style={this.props.style}>
                 <div style={{paddingBottom: 15}}><Translate component="h5" content="gateway.gateway_text" /></div>
                 <div style={{paddingBottom: 15}}>
@@ -127,7 +133,7 @@ export default class BlockTradesGateway extends React.Component {
 
                 {!coin ? <LoadingIndicator /> :
                 <div>
-                    <div>
+                    {/* <div>
                         <span><Translate content={"gateway.choose_" + action} />: </span>
                         <select
                             style={{
@@ -141,7 +147,7 @@ export default class BlockTradesGateway extends React.Component {
                         >
                             {coinOptions}
                         </select>
-                    </div>
+                    </div> */}
 
                     <div style={{marginBottom: 15}}>
                         <BlockTradesGatewayDepositRequest

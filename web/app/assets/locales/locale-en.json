@@ -1021,6 +1021,7 @@
     "fee_paying_account": "Fee paying account"
   },
   "gateway": {
+    "bitkapital_text": "Choose an asset to deposit or withdraw:",
     "service": "Transfer Service",
     "bridge": "Bridge",
     "gateway": "Gateway",
