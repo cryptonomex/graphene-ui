@@ -118,17 +118,17 @@ export default class BitKapital extends React.Component {
     render() {
         let {jianjolly, account, asset} = this.props;
         let {action} = this.state;
-        console.log("jianjolly:", jianjolly.toJS(), "asset:", asset.toJS());
+        // console.log("jianjolly:", jianjolly.toJS(), "asset:", asset.toJS());
 
         let isWhiteListed = jianjolly.get("whitelisted_accounts").includes(account.get("id"));
 
-        console.log(account.get("id"), "isWhiteListed", isWhiteListed);
+        // console.log(account.get("id"), "isWhiteListed", isWhiteListed);
 
-        if (false && !isWhiteListed) {
+        if (!isWhiteListed) {
             return (
                 <iframe
                     style={{width: "100%", minHeight: 800}}
-                    src={"https://bitkapital.com/kayit.html" + account.get("name")}
+                    src={"https://bitkapital.com/kayit.html&account=" + account.get("name")}
                 >
                 </iframe>
             );
