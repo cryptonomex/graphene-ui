@@ -359,9 +359,7 @@ let willTransitionTo = (nextState, replaceState, callback) => {
 let routes = (
     <Route path="/" component={RootIntl} onEnter={willTransitionTo}>
         <IndexRoute component={AccountPage} onEnter={(nextState, replaceState) => {
-            console.log("on enter accountpage", nextState);
             let currentAccount = AccountStore.getState().currentAccount;
-            debugger;
             if (nextState.location.pathname === "/") {
                 if (!currentAccount) {
                     replaceState(null, "/create-account");
