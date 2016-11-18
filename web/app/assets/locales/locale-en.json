@@ -14,7 +14,7 @@
     "sub_text_2" : "Once you've synchronized your clock, please refresh this page. If your clock is already correct, the API server you're using could be out of sync. In that case, please try a different server from the list below."
   },
   "header": {
-    "title": "Graphene UI",
+    "title": "BitKapital",
     "account": "Account",
     "dashboard": "Dashboard",
     "explorer": "Explore",
@@ -733,7 +733,7 @@
     "restore_key_count": "# of keys"
   },
   "footer": {
-    "title": "Graphene",
+    "title": "BitKapital",
     "block": "Head block",
     "loading": "Loading...",
     "backup": "A Backup is Required",

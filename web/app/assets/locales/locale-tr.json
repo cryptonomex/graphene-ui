@@ -9,7 +9,7 @@
     "tr": "Türkçe"
   },
   "header": {
-    "title": "Bitshares 2.0",
+    "title": "BitKapital",
     "account": "Hesap",
     "dashboard": "Ana Sayfa",
     "explorer": "İncele",
@@ -687,7 +687,7 @@
     "disableChat": "Sohbeti etkinsizleştir"
   },
   "footer": {
-    "title": "Graphene",
+    "title": "BitKapital",
     "block": "Başat blok",
     "loading": "Yükleniyor...",
     "backup": "Yedekleme Gerekli",
