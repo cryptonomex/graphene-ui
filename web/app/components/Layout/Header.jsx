@@ -17,7 +17,7 @@ import cnames from "classnames";
 import TotalBalanceValue from "../Utility/TotalBalanceValue";
 import Immutable from "immutable";
 
-var logo = require("assets/logo-ico-blue.png");
+var logo = require("assets/logo-bitkapital.png");
 
 @connectToStores
 class Header extends React.Component {
