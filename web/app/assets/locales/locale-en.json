@@ -1022,6 +1022,8 @@
   },
   "gateway": {
     "bitkapital_text": "Choose an asset to deposit or withdraw:",
+    "bitkapital_withdraw": "You are withdrawing",
+    "bitkapital_receive": "You will receive",
     "service": "Transfer Service",
     "bridge": "Bridge",
     "gateway": "Gateway",

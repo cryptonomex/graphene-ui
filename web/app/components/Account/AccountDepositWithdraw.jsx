@@ -20,6 +20,7 @@ import cnames from "classnames";
 import AccountStore from "stores/AccountStore";
 import SettingsStore from "stores/SettingsStore";
 import SettingsActions from "actions/SettingsActions";
+import BitKapital from "../DepositWithdraw/BitKapital";
 
 @BindToChainState()
 class AccountDepositWithdraw extends React.Component {
@@ -240,10 +241,7 @@ class AccountDepositWithdraw extends React.Component {
                                 currentCoin={openLedgerGatewayCoins.find(a => a.symbol === currentCoin)}
                             />
                         </div>
-                    </div> : (
-                    <div>
-                        TURKISH LIRA IFRAME
-                    </div>)
+                    </div> : <BitKapital account={account}/>
                     }
 
                 </div>

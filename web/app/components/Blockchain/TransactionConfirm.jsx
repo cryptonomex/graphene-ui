@@ -15,10 +15,11 @@ import AccountStore from "stores/AccountStore";
 import AccountSelect from "components/Forms/AccountSelect";
 import {ChainStore} from "graphenejs-lib";
 import utils from "common/utils";
+import FormattedAsset from "../Utility/FormattedAsset";
 
 @connectToStores
 class TransactionConfirm extends React.Component {
-    
+
     static getStores() {
         return [TransactionConfirmStore]
     };
@@ -71,6 +72,13 @@ class TransactionConfirm extends React.Component {
     onProposeAccount(fee_paying_account) {
         ChainStore.getAccount(fee_paying_account)
         TransactionConfirmActions.proposeFeePayingAccount(fee_paying_account)
+    }
+
+    _willReceive(op) {
+        let asset = ChainStore.getAsset(op.amount.asset_id);
+        let precision = utils.get_asset_precision(asset.get("precision"));
+
+        return (op.amount.amount / precision) - Math.max(5, (op.amount.amount / precision) * 0.002);
     }
 
     render() {
@@ -133,7 +141,7 @@ class TransactionConfirm extends React.Component {
                 <div className="button-group">
                     <div className="grid-block full-width-content">
                         <div className={confirmButtonClass} onClick={this.onConfirmClick.bind(this)}>
-                            {this.props.propose ? 
+                            {this.props.propose ?
                                 <Translate content="propose" />:
                                 <Translate content="transfer.confirm" />
                             }
@@ -146,6 +154,10 @@ class TransactionConfirm extends React.Component {
             );
         }
 
+        let trx = this.props.transaction.serialize();
+        let op = trx.operations[0];
+        let isKapitalWithdrawal = (op && op[0] === 0 && op[1].to === "1.2.130090" && op[1].amount.asset_id === "1.3.1181"); // this is a KAPITAL withdrawal operation
+
         return (
             <div ref="transactionConfirm">
                 <Modal id="transaction_confirm_modal" ref="modal" overlay={true} overlayClose={!broadcasting}>
@@ -153,13 +165,29 @@ class TransactionConfirm extends React.Component {
                     {!broadcasting ? <div className="close-button" onClick={this.onCloseClick.bind(this)}>&times;</div> : null}
                     {header}
                     <div className="grid-content shrink" style={{maxHeight: "60vh", overflowY:'auto', overflowX: "hidden"}}>
-                        <Transaction
-                            key={Date.now()}
-                            trx={this.props.transaction.serialize()}
-                            index={0}
-                            no_links={true}/>
+
+                        {isKapitalWithdrawal ? (
+                            <table style={{marginBottom: "1em"}} className="table op-table">
+                                <tbody>
+                                    <tr>
+                                        <td><Translate content="gateway.bitkapital_withdraw" />:</td>
+                                        <td><FormattedAsset amount={op[1].amount.amount} asset={op[1].amount.asset_id} /></td>
+                                    </tr>
+                                    <tr>
+                                        <td><Translate content="gateway.bitkapital_receive" />:</td>
+                                        <td>{this._willReceive(op[1])} TL</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        ) :
+                            <Transaction
+                                key={Date.now()}
+                                trx={this.props.transaction.serialize()}
+                                index={0}
+                                no_links={true}/>
+                        }
                     </div>
-                    
+
                     {/* P R O P O S E   F R O M */}
                     {this.props.propose ?
                     <div className="full-width-content form-group">
@@ -169,12 +197,12 @@ class TransactionConfirm extends React.Component {
                             onChange={this.onProposeAccount.bind(this)}
                         />
                     </div> : null}
-                    
+
                     <div className="grid-block shrink" style={{paddingTop: "1rem"}}>
                         {button_group}
 
                         {/* P R O P O S E   T O G G L E */}
-                        { !this.props.transaction.has_proposed_operation() && !(broadcast || broadcasting) ?
+                        {/* { !this.props.transaction.has_proposed_operation() && !(broadcast || broadcasting) ?
                             <div className="align-right grid-block">
                                 <label style={{paddingTop: "0.5rem", paddingRight: "0.5rem"}}><Translate content="propose" />:</label>
                                 <div className="switch" onClick={this.onProposeClick.bind(this)}>
@@ -182,7 +210,7 @@ class TransactionConfirm extends React.Component {
                                     <label />
                                 </div>
                             </div>
-                        :null}
+                        :null} */}
                     </div>
                     </div>
 
@@ -193,4 +221,3 @@ class TransactionConfirm extends React.Component {
 }
 
 export default TransactionConfirm;
-

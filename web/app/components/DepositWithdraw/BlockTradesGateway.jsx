@@ -39,7 +39,6 @@ export default class BlockTradesGateway extends React.Component {
     _getActiveCoin(props, state) {
         // let cachedCoin = props.viewSettings.get(`activeCoin_${props.provider}_${state.action}`, null);
         let activeCoin = props.currentCoin[state.action === "withdraw" ? "symbol" : "backingCoinType"]; //cachedCoin ? cachedCoin : props.coins.length ? props.coins[0][state.action === "withdraw" ? "symbol" : "backingCoinType"].toUpperCase() : null;
-        console.log(state.action, "activeCoin:", activeCoin);
         return activeCoin;
     }
 
@@ -80,7 +79,6 @@ export default class BlockTradesGateway extends React.Component {
     changeAction(type) {
 
         let activeCoin = this._getActiveCoin(this.props, {action: type});
-        console.log("changeAction", type, activeCoin);
         this.setState({
             action: type,
             activeCoin: activeCoin
