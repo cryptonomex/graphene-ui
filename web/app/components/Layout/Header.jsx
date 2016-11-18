@@ -5,6 +5,8 @@ import ActionSheet from "react-foundation-apps/src/action-sheet";
 import AccountActions from "actions/AccountActions";
 import AccountStore from "stores/AccountStore";
 import SettingsStore from "stores/SettingsStore";
+import SettingsActions from "actions/SettingsActions";
+import IntlActions from "actions/IntlActions";
 import ZfApi from "react-foundation-apps/src/utils/foundation-api";
 import Icon from "../Icon/Icon";
 import Translate from "react-translate-component";
@@ -18,6 +20,8 @@ import TotalBalanceValue from "../Utility/TotalBalanceValue";
 import Immutable from "immutable";
 
 var logo = require("assets/logo-bitkapital.png");
+var enFlag = require("assets/english_flag.png");
+var tuFlag = require("assets/turkish_flag.png");
 
 @connectToStores
 class Header extends React.Component {
@@ -33,7 +37,8 @@ class Header extends React.Component {
             locked: WalletUnlockStore.getState().locked,
             current_wallet: WalletManagerStore.getState().current_wallet,
             lastMarket: SettingsStore.getState().viewSettings.get("lastMarket"),
-            starredAccounts: SettingsStore.getState().starredAccounts
+            starredAccounts: SettingsStore.getState().starredAccounts,
+            locale: SettingsStore.getState().settings.get("locale")
         };
     }
 
@@ -78,7 +83,8 @@ class Header extends React.Component {
             nextProps.current_wallet !== this.props.current_wallet ||
             nextProps.lastMarket !== this.props.lastMarket ||
             nextProps.starredAccounts !== this.props.starredAccounts ||
-            nextState.active !== this.state.active
+            nextState.active !== this.state.active ||
+            nextProps.locale !== this.props.locale
         );
     }
 
@@ -125,9 +131,14 @@ class Header extends React.Component {
         this.context.history.pushState(null, `/account/${account}/overview`);
     }
 
+    _onChangeLanguage(locale) {
+        IntlActions.switchLocale(locale);
+        SettingsActions.changeSetting({setting: "locale", value: locale });
+    }
+
     render() {
         let {active} = this.state;
-        let {linkedAccounts, currentAccount, starredAccounts} = this.props;
+        let {linkedAccounts, currentAccount, starredAccounts, locale} = this.props;
         let settings = counterpart.translate("header.settings");
         let locked_tip = counterpart.translate("header.locked_tip");
         let unlocked_tip = counterpart.translate("header.unlocked_tip");
@@ -291,6 +302,11 @@ class Header extends React.Component {
                             </div>
                         ) : null}
                         {createAccountLink}
+
+                        <div style={{paddingTop: 12}}>
+                            <img onClick={this._onChangeLanguage.bind(this, "tr")} style={{opacity: locale !== "tr" ? 0.5 : 1, paddingRight: 5, margin: 0, height: 25}} src={tuFlag}/>
+                            <img onClick={this._onChangeLanguage.bind(this, "en")} style={{opacity: locale !== "en" ? 0.5 : 1, margin: 0, height: 25}} src={enFlag}/>
+                        </div>
                     </div>
                 </div>
             </div>
