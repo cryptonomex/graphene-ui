@@ -346,7 +346,6 @@ class CreateAccount extends React.Component {
 
     render() {
         let {step} = this.state;
-        step = 3;
         let my_accounts = AccountStore.getMyAccounts();
         let firstAccount = my_accounts.length === 0;
 

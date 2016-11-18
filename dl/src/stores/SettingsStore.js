@@ -98,9 +98,7 @@ class SettingsStore {
             //     {translate: "no"}
             // ],
             themes: [
-                "darkTheme",
-                "lightTheme",
-                "olDarkTheme"
+                "lightTheme"
             ]
             // confirmMarketOrder: [
             //     {translate: "confirm_yes"},
