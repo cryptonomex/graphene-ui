@@ -45,7 +45,7 @@ class Footer extends React.Component {
         let bt = (new Date(block_time).getTime() + ChainStore.getEstimatedChainTimeOffset()) / 1000;
         let now = new Date().getTime() / 1000;
         let version_match = APP_VERSION.match(/2\.0\.(\d\w+)/);
-        let version = " 08.11.2016"; // version_match ? `.${version_match[1]}` : ` ${APP_VERSION}`;
+        let version = " 0.1.1"; // version_match ? `.${version_match[1]}` : ` ${APP_VERSION}`;
         return (
             <div className="show-for-medium grid-block shrink footer">
                 <div className="align-justify grid-block">
