@@ -115,9 +115,7 @@ class BuySell extends React.Component {
                 <div className="exchange-bordered buy-sell-container">
                     <div className={"exchange-content-header " + type}>
                         <span>{buttonText} <AssetName name={quote.get("symbol")} /></span>
-                        {this.props.onFlip ? <span onClick={this.props.onFlip} style={{cursor: "pointer", fontSize: "1rem"}}>  &#8646;</span> : null}
-                        {this.props.onTogglePosition ? <span onClick={this.props.onTogglePosition} style={{cursor: "pointer", fontSize: "1rem"}}>  &#8645;</span> : null}
-                        {<div onClick={this.props.onToggleOpen} className="float-right clickable hide-for-xlarge">{caret}</div>}
+
                     </div>
 
                     <form className={(!this.props.isOpen ? "hide-container " : "") + "order-form"} noValidate>
@@ -152,7 +150,7 @@ class BuySell extends React.Component {
                                         <Translate content="exchange.total" />:
                                     </div>
                                     <div className="grid-block small-6 no-margin no-overflow buy-sell-input">
-                                        <input type="number" id="buyAmount" value={total} onChange={totalChange} autoComplete="off" placeholder="0.0"/>
+                                        <input type="number" disabled id="buyAmount" value={total} autoComplete="off" placeholder="0.0"/>
                                     </div>
                                     <div className="grid-block small-3 no-margin no-overflow buy-sell-box">
                                         <AssetName name={base.get("symbol")} />

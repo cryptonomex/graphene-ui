@@ -5,6 +5,8 @@ import ActionSheet from "react-foundation-apps/src/action-sheet";
 import AccountActions from "actions/AccountActions";
 import AccountStore from "stores/AccountStore";
 import SettingsStore from "stores/SettingsStore";
+import SettingsActions from "actions/SettingsActions";
+import IntlActions from "actions/IntlActions";
 import ZfApi from "react-foundation-apps/src/utils/foundation-api";
 import Icon from "../Icon/Icon";
 import Translate from "react-translate-component";
@@ -17,7 +19,9 @@ import cnames from "classnames";
 import TotalBalanceValue from "../Utility/TotalBalanceValue";
 import Immutable from "immutable";
 
-var logo = require("assets/logo-ico-blue.png");
+var logo = require("assets/logo-bitkapital.png");
+var enFlag = require("assets/english_flag.png");
+var tuFlag = require("assets/turkish_flag.png");
 
 @connectToStores
 class Header extends React.Component {
@@ -33,7 +37,8 @@ class Header extends React.Component {
             locked: WalletUnlockStore.getState().locked,
             current_wallet: WalletManagerStore.getState().current_wallet,
             lastMarket: SettingsStore.getState().viewSettings.get("lastMarket"),
-            starredAccounts: SettingsStore.getState().starredAccounts
+            starredAccounts: SettingsStore.getState().starredAccounts,
+            locale: SettingsStore.getState().settings.get("locale")
         };
     }
 
@@ -78,7 +83,8 @@ class Header extends React.Component {
             nextProps.current_wallet !== this.props.current_wallet ||
             nextProps.lastMarket !== this.props.lastMarket ||
             nextProps.starredAccounts !== this.props.starredAccounts ||
-            nextState.active !== this.state.active
+            nextState.active !== this.state.active ||
+            nextProps.locale !== this.props.locale
         );
     }
 
@@ -125,9 +131,14 @@ class Header extends React.Component {
         this.context.history.pushState(null, `/account/${account}/overview`);
     }
 
+    _onChangeLanguage(locale) {
+        IntlActions.switchLocale(locale);
+        SettingsActions.changeSetting({setting: "locale", value: locale });
+    }
+
     render() {
         let {active} = this.state;
-        let {linkedAccounts, currentAccount, starredAccounts} = this.props;
+        let {linkedAccounts, currentAccount, starredAccounts, locale} = this.props;
         let settings = counterpart.translate("header.settings");
         let locked_tip = counterpart.translate("header.locked_tip");
         let unlocked_tip = counterpart.translate("header.unlocked_tip");
@@ -159,11 +170,11 @@ class Header extends React.Component {
                                 <TotalBalanceValue.AccountWrapper accounts={myAccounts} inHeader={true}/>
                             </div>) : null;
 
-        let dashboard = (
+        let headerLogo = (
             <a
                 style={{paddingTop: 3, paddingBottom: 3}}
-                className={cnames({active: active === "/" || active.indexOf("dashboard") !== -1})}
-                onClick={this._onNavigate.bind(this, "/dashboard")}
+                className={cnames({active: active === "/" || active.indexOf("account") !== -1})}
+                onClick={this._onNavigate.bind(this, currentAccount ? `/account/${currentAccount}/overview` : "create-account")}
             >
                 <img style={{margin: 0, height: 40}} src={logo}/>
             </a>
@@ -220,7 +231,7 @@ class Header extends React.Component {
                 let options = [
                     {to: "/settings", text: "header.settings"},
                     {to: "/help", text: "header.help"},
-                    {to: "/explorer", text: "header.explorer"}
+                    // {to: "/explorer", text: "header.explorer"}
                 ].map(entry => {
                     return <li className="dropdown-options" key={entry.to}><Translate content={entry.text} component="a" onClick={this._onNavigate.bind(this, entry.to)}/></li>;
                 });
@@ -235,22 +246,23 @@ class Header extends React.Component {
                     </li>) : null;
 
 
-                accountsDropDown = (
-                    <ActionSheet>
-                        <ActionSheet.Button title="">
-                            <a style={{padding: "1rem"}} className="button">
-                                &nbsp;{account_display_name} &nbsp;
-                                <Icon className="icon-14px" name="chevron-down"/>
-                            </a>
-                        </ActionSheet.Button>
-                        <ActionSheet.Content >
-                            <ul className="no-first-element-top-border">
-                                {options}
-                                {lockOptions}
-                                {tradingAccounts.length > 1 ? accountsList : null}
-                            </ul>
-                        </ActionSheet.Content>
-                    </ActionSheet>);
+                accountsDropDown = <div style={{fontSize: 14, paddingLeft: "1rem"}}>
+                    &nbsp;{account_display_name} &nbsp;
+                </div>;
+
+                // (
+                //     <ActionSheet>
+                //         <ActionSheet.Button title="">
+                //
+                //         </ActionSheet.Button>
+                //         <ActionSheet.Content >
+                //             <ul className="no-first-element-top-border">
+                //                 {options}
+                //                 {lockOptions}
+                //                 {tradingAccounts.length > 1 ? accountsList : null}
+                //             </ul>
+                //         </ActionSheet.Content>
+                //     </ActionSheet>);
             }
         }
 
@@ -269,8 +281,8 @@ class Header extends React.Component {
                 </div> : null}
                 <div className="grid-block show-for-medium">
                     <ul className="menu-bar">
-                        <li>{dashboard}</li>
-                        {!currentAccount ? null : <li><Link to={`/account/${currentAccount}/overview`} activeClassName="active"><Translate content="header.account" /></Link></li>}
+                        <li>{headerLogo}</li>
+                        {/* {!currentAccount ? null : <li><Link to={`/account/${currentAccount}/overview`} activeClassName="active"><Translate content="header.account" /></Link></li>} */}
                         <li><a className={cnames({active: active.indexOf("transfer") !== -1})} onClick={this._onNavigate.bind(this, "/transfer")}><Translate component="span" content="header.payments" /></a></li>
                         <li>{tradeLink}</li>
                         {currentAccount && myAccounts.indexOf(currentAccount) !== -1 ? <li><Link to={"/deposit-withdraw/"} activeClassName="active"><Translate content="account.deposit_withdraw"/></Link></li> : null}
@@ -280,7 +292,7 @@ class Header extends React.Component {
                     <div className="grp-menu-items-group header-right-menu">
                         {walletBalance}
 
-                        <div className="grid-block shrink overflow-visible account-drop-down">
+                        <div className="grid-block shrink overflow-visible grp-menu-item" style={{padding: "18px 0px 15px"}}>
                             {accountsDropDown}
                         </div>
                         {lock_unlock}
@@ -290,6 +302,11 @@ class Header extends React.Component {
                             </div>
                         ) : null}
                         {createAccountLink}
+
+                        <div style={{paddingTop: 12}}>
+                            <img onClick={this._onChangeLanguage.bind(this, "tr")} style={{opacity: locale !== "tr" ? 0.5 : 1, paddingRight: 5, margin: 0, height: 25}} src={tuFlag}/>
+                            <img onClick={this._onChangeLanguage.bind(this, "en")} style={{opacity: locale !== "en" ? 0.5 : 1, margin: 0, height: 25}} src={enFlag}/>
+                        </div>
                     </div>
                 </div>
             </div>

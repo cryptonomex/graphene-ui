@@ -1405,9 +1405,9 @@ class Exchange extends React.Component {
                                         <Icon className={starClass} name="fi-star"/>
                                     </span>
                                     {!hasPrediction ? (
-                                        <Link className="market-symbol" to={`/market/${baseSymbol}_${quoteSymbol}`}>
+                                        <span className="market-symbol">
                                             <span><AssetName name={quoteSymbol} replace={true} /> : <AssetName name={baseSymbol} replace={true} /></span>
-                                        </Link>) : (
+                                        </span>) : (
                                         <a className="market-symbol">
                                             <span>{`${quoteSymbol} : ${baseSymbol}`}</span>
                                         </a>

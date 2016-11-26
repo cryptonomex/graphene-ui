@@ -14,7 +14,7 @@
     "sub_text_2" : "Once you've synchronized your clock, please refresh this page. If your clock is already correct, the API server you're using could be out of sync. In that case, please try a different server from the list below."
   },
   "header": {
-    "title": "Graphene UI",
+    "title": "BitKapital",
     "account": "Account",
     "dashboard": "Dashboard",
     "explorer": "Explore",
@@ -57,6 +57,8 @@
     "estimate_value": "Estimated account value",
     "polo_scam": "This account is not the real Poloniex account, please send to this account: poloniexwallet.",
     "bittrex_scam": "This account is not the real Bittrex account, please send to this account: bittrex-deposit.",
+    "wallet_options": "Wallet Options",
+    "api_server": "API Server",
     "whitelist": {
       "title": "Whitelist",
       "black": "Blacklist",
@@ -731,7 +733,7 @@
     "restore_key_count": "# of keys"
   },
   "footer": {
-    "title": "Graphene",
+    "title": "BitKapital",
     "block": "Head block",
     "loading": "Loading...",
     "backup": "A Backup is Required",
@@ -1019,6 +1021,9 @@
     "fee_paying_account": "Fee paying account"
   },
   "gateway": {
+    "bitkapital_text": "Choose an asset to deposit or withdraw:",
+    "bitkapital_withdraw": "You are withdrawing",
+    "bitkapital_receive": "You will receive",
     "service": "Transfer Service",
     "bridge": "Bridge",
     "gateway": "Gateway",

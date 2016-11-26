@@ -15,26 +15,31 @@ class SettingsStore {
         this.exportPublicMethods({getSetting: this.getSetting.bind(this)});
 
         this.defaultSettings = Immutable.Map({
-            locale: "en",
+            locale: "tr",
             apiServer: "wss://bitshares.openledger.info/ws",
             faucet_address: "https://bitshares.openledger.info",
-            unit: CORE_ASSET,
+            unit: "BTS",
             showSettles: false,
             showAssetPercent: false,
             walletLockTimeout: 60 * 10,
-            themes: "darkTheme",
-            disableChat: false
+            themes: "lightTheme"
         });
 
         // Default markets setup
         let topMarkets = [
-            "MKR", "OPEN.MKR", "BTS", "OPEN.ETH", "ICOO", "BTC", "OPEN.LISK",
-            "OPEN.STEEM", "OPEN.DAO", "PEERPLAYS", "USD", "CNY", "BTSR", "OBITS",
-            "OPEN.DGD", "EUR", "TRADE.BTC", "CASH.BTC", "GOLD", "SILVER",
-            "OPEN.USDT", "OPEN.EURT", "OPEN.BTC", "CADASTRAL", "BLOCKPAY"
+            "OPEN.USD",
+            "OPEN.BTC",
+            "OPEN.LTC",
+            "OPEN.ETH",
+            "OPEN.LSK",
+            "OPEN.DASH",
+            "OPEN.DOGE",
+            "OPEN.STEEM",
+            "BTS",
+            "BKT"
         ];
 
-        this.preferredBases = Immutable.List([CORE_ASSET, "OPEN.BTC", "USD", "CNY", "BTC"]);
+        this.preferredBases = Immutable.List(["KAPITAL"]);
         // Openledger
         // this.preferredBases = Immutable.List(["OPEN.BTC", "OPEN.ETH", "OPEN.USDT", "OPEN.EURT", CORE_ASSET]);
 
@@ -75,12 +80,10 @@ class SettingsStore {
             ],
             apiServer: [],
             unit: [
-                CORE_ASSET,
-                "USD",
-                "CNY",
-                "BTC",
-                "EUR",
-                "GBP"
+                "BTS",
+                "KAPITAL",
+                "OPEN.BTC",
+                "OPEN.USD"
             ],
             showSettles: [
                 {translate: "yes"},
@@ -90,14 +93,12 @@ class SettingsStore {
                 {translate: "yes"},
                 {translate: "no"}
             ],
-            disableChat: [
-                {translate: "yes"},
-                {translate: "no"}
-            ],
+            // disableChat: [
+            //     {translate: "yes"},
+            //     {translate: "no"}
+            // ],
             themes: [
-                "darkTheme",
-                "lightTheme",
-                "olDarkTheme"
+                "lightTheme"
             ]
             // confirmMarketOrder: [
             //     {translate: "confirm_yes"},

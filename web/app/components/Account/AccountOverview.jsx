@@ -14,7 +14,10 @@ import Proposals from "components/Account/Proposals";
 import {ChainStore} from "graphenejs-lib";
 import SettingsActions from "actions/SettingsActions";
 import assetUtils from "common/asset_utils";
-import ActionSheet from "react-foundation-apps/src/action-sheet";
+// import ActionSheet from "react-foundation-apps/src/action-sheet";
+import AccountSettings from "./AccountSettings";
+import AccountAPI from "./AccountAPI";
+
 import Icon from "../Icon/Icon";
 
 class AccountOverview extends React.Component {
@@ -91,7 +94,7 @@ class AccountOverview extends React.Component {
                     {/*<td style={{textAlign: "right"}}><MarketLink.ObjectWrapper object={balance}></MarketLink.ObjectWrapper></td>*/}
                     <td style={{textAlign: "right"}}><BalanceValueComponent balance={balance} toAsset={preferredUnit}/></td>
                     {showAssetPercent ? <td style={{textAlign: "right"}}><BalanceComponent balance={balance} asPercentage={true}/></td> : null}
-                    <td style={{textAlign: "center"}}>
+                    {/* <td style={{textAlign: "center"}}>
                         <ActionSheet>
                             <ActionSheet.Button title="">
                                 <a className="action-button">
@@ -116,10 +119,10 @@ class AccountOverview extends React.Component {
                             </ActionSheet.Content>
                         </ActionSheet>
 
-                    </td>
+                    </td> */}
                 </tr>
             );
-        })
+        });
 
         return balances;
     }
@@ -268,6 +271,23 @@ class AccountOverview extends React.Component {
                         limit={10}
                         showFilters={true}
                     />
+                </div>
+
+                <div className="content-block">
+                    <div className="block-content-header">
+                        <Translate content="account.wallet_options"/>
+                    </div>
+
+                    <AccountSettings />
+                </div>
+
+                <div className="content-block">
+                    <div className="block-content-header">
+                        <Translate content="account.api_server"/>
+                    </div>
+
+                    <AccountAPI />
+
                 </div>
             </div>
 
