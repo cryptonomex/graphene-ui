@@ -37,7 +37,7 @@ class Comment extends React.Component {
 
     render() {
         let {comment, user, color} = this.props;
-        let systemUsers = [counterpart.translate("chat.welcome_user"), "SYSTEM"];
+        let systemUsers = [counterpart.translate("chat.welcome_user"), "SYSTEM", "TROLLBOT"];
         return (
             <div style={{padding: "3px 1px"}}>
                 <span
@@ -329,13 +329,13 @@ class Chat extends React.Component {
     _onTipSuccess() {
         let tip = this._parseTip();
         let message = {
-            user: "SYSTEM",
+            user: "TROLLBOT",
             message: this.props.currentAccount + " tipped " + tip.to + " " + tip.amount + " " + tip.asset,
             color: "#B71A00"
         };
 
         // Public and local broadcast
-        this._broadCastMessage(message);
+        this._broadCastMessage(message, local = false);
 
         this.refs.input.value = "";
     }
@@ -343,7 +343,11 @@ class Chat extends React.Component {
     _parseTip() {
         let parsed = this.refs.input.value.split(" ");
 
-        let memo;
+        let memo = "TROLLBOT: You have received tip!" // or more randomly choosen from MEME pool:
+                                                         //TROLLBOT: Looks like someone's like you
+                                                         //TROLLBOT: [Maybe funny joke here]
+                                                         //TROLLBOT: [SMART FUNNY MESSAGE] // most preferable
+        //if someone want own memo.
         if (parsed.length > 4) {
             memo = "";
             for (let i = 4; i < parsed.length; i++) {
