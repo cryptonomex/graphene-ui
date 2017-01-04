@@ -37,7 +37,7 @@ class Comment extends React.Component {
 
     render() {
         let {comment, user, color} = this.props;
-        let systemUsers = [counterpart.translate("chat.welcome_user"), "SYSTEM", "TROLLBOT"];
+        let systemUsers = [counterpart.translate("chat.welcome_user"), "SYSTEM"];
         return (
             <div style={{padding: "3px 1px"}}>
                 <span
@@ -329,13 +329,13 @@ class Chat extends React.Component {
     _onTipSuccess() {
         let tip = this._parseTip();
         let message = {
-            user: "TROLLBOT",
+            user: "SYSTEM",
             message: this.props.currentAccount + " tipped " + tip.to + " " + tip.amount + " " + tip.asset,
             color: "#B71A00"
         };
 
         // Public and local broadcast
-        this._broadCastMessage(message, local = false);
+        this._broadCastMessage(message);
 
         this.refs.input.value = "";
     }
