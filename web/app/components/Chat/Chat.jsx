@@ -343,7 +343,11 @@ class Chat extends React.Component {
     _parseTip() {
         let parsed = this.refs.input.value.split(" ");
 
-        let memo;
+        let memo = "TROLLBOT: You have received tip!" // or more randomly choosen from MEME pool:
+                                                         //TROLLBOT: Looks like someone's like you
+                                                         //TROLLBOT: [Maybe funny joke here]
+                                                         //TROLLBOT: [SMART FUNNY MESSAGE] // most preferable
+        //if someone want own memo.
         if (parsed.length > 4) {
             memo = "";
             for (let i = 4; i < parsed.length; i++) {
