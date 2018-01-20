@@ -32,7 +32,7 @@ npm install
 
 ## Running the dev server
 
-The dev server uses Express in combination with Wepback 2.
+The dev server uses [Express](https://expressjs.com/) in combination with Webpack 2.
 
 Once all the packages have been installed you can start the development server by going to the `web` folder and running:
 ```
@@ -56,7 +56,7 @@ npm run build
 This will create a bundle in the /dist folder that can be hosted with the web server of your choice.
 
 ### Installable wallets
-We use Electron to provide installable wallets, available for Windows, OSX and Linux Debian platforms such as Ubuntu. First, install the required packages in the `electron` folder. Then go to the `web` folder and run `npm run electron`. This will compile the UI with some special modifications for use with Electron, and copy the result to the root `electron/build` folder. Now go back to the `electron` folder and run `npm run release` in order to build a wallet for your platform. 
+We use [Electron](https://electronjs.org/) to provide installable wallets, available for Windows, OSX and Linux Debian platforms such as Ubuntu. First, install the required packages in the `electron` folder. Then go to the `web` folder and run `npm run electron`. This will compile the UI with some special modifications for use with Electron, and copy the result to the root `electron/build` folder. Now go back to the `electron` folder and run `npm run release` in order to build a wallet for your platform. 
 
 ## Contributing
 Graphene-UI is open source and anyone is free to contribute. PR's are welcomed and will be reviewed in a timely manner, and long-term contributors will be given access to the repo.
@@ -79,12 +79,12 @@ There's also a very active [Telegram chatroom](https://web.telegram.org/#/im?p=g
 
 ### Coding style guideline
 
-Our style guideline is based on 'Airbnb JavaScript Style Guide' (https://github.com/airbnb/javascript), with few exceptions:
+Our style guideline is based on 'Airbnb JavaScript Style Guide' (https://github.com/airbnb/javascript), with a few exceptions:
 
 - Strings are double quoted
 - Additional trailing comma (in arrays and objects declaration) is optional
 - 4 spaces tabs
 - Spaces inside curly braces are optional
 
-We strongly encourage to use _eslint_ to make sure the code adhere to our style guidelines.
+We strongly encourage to use _eslint_ to make sure the code adheres to our style guidelines.
 
